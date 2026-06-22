@@ -18,7 +18,9 @@ export class ModalRef<TData = unknown> {
    */
   readonly closed$: Observable<ModalOutcome<TData>>;
 
-  constructor(private readonly dialogRef: DialogRef<ModalOutcome<TData>>) {
+  // The component-type generic is intentionally `any`: it only affects CDK's
+  // internal config typing and would otherwise leak variance noise here.
+  constructor(private readonly dialogRef: DialogRef<ModalOutcome<TData>, any>) {
     this.id = dialogRef.id;
     this.closed$ = dialogRef.closed.pipe(
       map(outcome => outcome ?? { result: ModalResult.Undefined })
