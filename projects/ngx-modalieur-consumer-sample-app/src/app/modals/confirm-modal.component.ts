@@ -1,10 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MODAL_DATA, ModalContent } from '@kazepis/ngx-modalieur';
 
-export interface ConfirmData {
-  title: string;
-  message: string;
-}
+import { SampleData } from './sample-data';
 
 @Component({
   selector: 'app-confirm-modal',
@@ -21,8 +18,8 @@ export interface ConfirmData {
       <button type="button" class="btn btn-secondary" (click)="no()">No</button>
       <button type="button" class="btn btn-primary" (click)="yes()">Yes</button>
     </div>
-  `
+  `,
 })
 export class ConfirmModalComponent extends ModalContent {
-  protected readonly data = inject<ConfirmData>(MODAL_DATA);
+  protected readonly data = inject<SampleData>(MODAL_DATA);
 }

@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import { ModalContent } from '@kazepis/ngx-modalieur';
+import { Component, inject } from '@angular/core';
+import { MODAL_DATA, ModalContent } from '@kazepis/ngx-modalieur';
+
+import { SampleData } from './sample-data';
 
 @Component({
   selector: 'app-waiting-modal',
@@ -10,7 +12,11 @@ import { ModalContent } from '@kazepis/ngx-modalieur';
         <span class="visually-hidden">Loading...</span>
       </div>
       <p class="mb-0">Working&hellip; this closes automatically.</p>
+      <p class="mb-0">{{ data.title }}</p>
+      <p class="mb-0">{{ data.message }}</p>
     </div>
-  `
+  `,
 })
-export class WaitingModalComponent extends ModalContent {}
+export class WaitingModalComponent extends ModalContent {
+  protected readonly data = inject<SampleData>(MODAL_DATA);
+}
