@@ -3,6 +3,7 @@ import { ModalieurService, ModalOutcome, ModalResult } from '@kazepis/ngx-modali
 import { concat, map, timer } from 'rxjs';
 
 import { ConfirmModalComponent } from './modals/confirm-modal.component';
+import { FullscreenModalComponent } from './modals/fullscreen-modal.component';
 import { NamePromptModalComponent } from './modals/name-prompt-modal.component';
 import { PlainModalComponent } from './modals/plain-modal.component';
 import { WaitingModalComponent } from './modals/waiting-modal.component';
@@ -54,8 +55,9 @@ export class App {
       id: 'fullscreen',
       label: 'Fullscreen',
       btnClass: 'btn-outline-primary',
-      code: `this.modalieur
-  .show(ConfirmModalComponent, { size: 'fullscreen', data })
+      code: `// Custom full-screen popup (unstyled = no Bootstrap classes).
+this.modalieur
+  .show(FullscreenModalComponent, { unstyled: true, data })
   .subscribe((outcome) => { /* ... */ });`,
       run: () => this.openFullscreen(),
     },
@@ -144,10 +146,11 @@ this.modalieur
   }
 
   protected openFullscreen(): void {
+    // A custom, unstyled full-screen popup (no Bootstrap modal classes).
     this.modalieur
-      .show(ConfirmModalComponent, {
-        size: 'fullscreen',
-        data: { title: 'Fullscreen modal', message: 'This dialog uses size: fullscreen.' },
+      .show(FullscreenModalComponent, {
+        unstyled: true,
+        data: { title: 'Fullscreen popup', message: 'A custom full-screen modal, centered.' },
       })
       .subscribe((outcome) => this.report(outcome));
   }
