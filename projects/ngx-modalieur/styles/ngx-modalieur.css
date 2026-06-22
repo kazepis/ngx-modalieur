@@ -14,15 +14,11 @@
 }
 
 /*
- * The pane and the `.modal` element are click-transparent so that clicks on the
- * empty area fall through to the CDK backdrop (which handles dismissal). The
- * `.modal-content` re-enables pointer events (Bootstrap already does this).
+ * The full-screen `.modal` element is click-transparent so clicks on the empty
+ * area fall through to the CDK backdrop (which handles dismissal); Bootstrap's
+ * `.modal-content` re-enables pointer events. The pane itself is left
+ * interactive so the `unstyled` path (no `.modal` wrapper) stays clickable.
  */
-.mdlr-modal-pane {
-  pointer-events: none;
-}
-
-/* Bootstrap hides `.modal` by default; it is only rendered here while open. */
 .mdlr-modal-pane .modal {
   display: block;
   pointer-events: none;

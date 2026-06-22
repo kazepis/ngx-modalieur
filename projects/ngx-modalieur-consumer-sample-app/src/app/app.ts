@@ -4,6 +4,7 @@ import { concat, map, timer } from 'rxjs';
 
 import { ConfirmModalComponent } from './modals/confirm-modal.component';
 import { NamePromptModalComponent } from './modals/name-prompt-modal.component';
+import { PlainModalComponent } from './modals/plain-modal.component';
 import { WaitingModalComponent } from './modals/waiting-modal.component';
 
 @Component({
@@ -66,6 +67,13 @@ export class App {
   protected openNamePrompt(): void {
     // The result-data type (NamePromptResult) is inferred from the component.
     this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => this.report(outcome));
+  }
+
+  protected openUnstyled(): void {
+    // No Bootstrap: the component brings its own styles.
+    this.modalieur
+      .show(PlainModalComponent, { unstyled: true })
+      .subscribe((outcome) => this.report(outcome));
   }
 
   private report(outcome: ModalOutcome): void {
