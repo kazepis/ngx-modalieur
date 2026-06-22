@@ -102,6 +102,19 @@ this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => {
       run: () => this.openNamePrompt(),
     },
     {
+      id: 'ref',
+      label: 'Programmatic control (showAndReturnRef)',
+      btnClass: 'btn-outline-primary',
+      code: `// Hold the ref, run async work, then close it yourself with a result + data.
+const ref = this.modalieur.showAndReturnRef(WaitingModalComponent, {
+  dismissible: false,
+});
+ref.closed$.subscribe((outcome) => { /* ... */ });
+
+save().then((id) => ref.close(ModalResult.Ok, { savedId: id }));`,
+      run: () => this.openProgress(),
+    },
+    {
       id: 'unstyled',
       label: 'No Bootstrap (unstyled)',
       btnClass: 'btn-outline-secondary',
@@ -150,7 +163,12 @@ this.modalieur
 
   protected openWaiting(): void {
     this.modalieur
-      .showUntil(WaitingModalComponent, timer(2000))
+      .showUntil(WaitingModalComponent, timer(2000), {
+        data: {
+          title: 'Auto-close',
+          message: 'This modal closes when the observable emits anything.',
+        },
+      })
       .subscribe((outcome) => this.report(outcome));
   }
 
@@ -161,7 +179,12 @@ this.modalieur
       timer(1500).pipe(map(() => true)),
     );
     this.modalieur
-      .showUntilCondition(WaitingModalComponent, condition$)
+      .showUntilCondition(WaitingModalComponent, condition$, {
+        data: {
+          title: 'Auto-close',
+          message: 'This modal closes when the condition emits true.',
+        },
+      })
       .subscribe((outcome) => this.report(outcome));
   }
 
@@ -174,6 +197,19 @@ this.modalieur
 
       this.report(outcome);
     });
+  }
+
+  protected openProgress(): void {
+    // Show a blocking modal, then close it from imperative async code with a result + data.
+    const ref = this.modalieur.showAndReturnRef(WaitingModalComponent, {
+      dismissible: false,
+      data: {
+        title: 'Saving…',
+        message: 'This modal closes when the save completes.',
+      },
+    });
+    ref.closed$.subscribe((outcome) => this.report(outcome));
+    setTimeout(() => ref.close(ModalResult.Ok, { savedId: 42 }), 2000);
   }
 
   protected openUnstyled(): void {
