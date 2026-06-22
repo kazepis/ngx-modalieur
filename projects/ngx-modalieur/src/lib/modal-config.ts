@@ -28,9 +28,6 @@ export interface ModalConfig<TData = unknown> {
   /** Whether a backdrop element is rendered. Default: `true`. */
   backdrop?: boolean;
 
-  /** Extra CSS class(es) applied to the overlay panel. */
-  panelClass?: string | string[];
-
   /**
    * Skip the Bootstrap dialog container and render the bare component instead.
    * Default: `false`.
