@@ -55,7 +55,11 @@
                 "input": "projects/ngx-modalieur-consumer-sample-app/public"
               }
             ],
-            "styles": ["projects/ngx-modalieur-consumer-sample-app/src/styles.scss"]
+            "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/@angular/cdk/overlay-prebuilt.css",
+              "projects/ngx-modalieur-consumer-sample-app/src/styles.scss"
+            ]
           },
           "configurations": {
             "production": {
