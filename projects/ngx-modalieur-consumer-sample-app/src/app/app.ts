@@ -1,8 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
-import { ModalieurService, ModalOutcome, ModalResult } from '@kazepis/ngx-modalieur';
+import {
+  MessageBoxButtons,
+  MessageBoxDialog,
+  ModalieurService,
+  ModalOutcome,
+  ModalResult,
+} from '@kazepis/ngx-modalieur';
 import { concat, map, timer } from 'rxjs';
 
 import { ConfirmModalComponent } from './modals/confirm-modal.component';
+import { CustomMessageBoxComponent } from './modals/custom-message-box.component';
 import { FullscreenModalComponent } from './modals/fullscreen-modal.component';
 import { NamePromptModalComponent } from './modals/name-prompt-modal.component';
 import { PlainModalComponent } from './modals/plain-modal.component';
@@ -126,6 +133,103 @@ this.modalieur
   .subscribe((outcome) => { /* ... */ });`,
       run: () => this.openUnstyled(),
     },
+    {
+      id: 'mb-ok',
+      label: 'MessageBox: OK',
+      btnClass: 'btn-outline-dark',
+      code: `this.modalieur
+  .show(MessageBoxDialog, {
+    data: { title: 'OK', message: '…', buttons: MessageBoxButtons.OK },
+  })
+  .subscribe((o) => { /* o.result === ModalResult.Ok */ });`,
+      run: () => this.openMessageBox(MessageBoxButtons.OK, 'OK', 'A single OK button.'),
+    },
+    {
+      id: 'mb-okcancel',
+      label: 'MessageBox: OK / Cancel',
+      btnClass: 'btn-outline-dark',
+      code: `this.modalieur
+  .show(MessageBoxDialog, {
+    data: { title: 'Save?', message: '…', buttons: MessageBoxButtons.OKCancel },
+  })
+  .subscribe((o) => { /* Ok | Cancel */ });`,
+      run: () => this.openMessageBox(MessageBoxButtons.OKCancel, 'Save changes?', 'Proceed with saving?'),
+    },
+    {
+      id: 'mb-abortretryignore',
+      label: 'MessageBox: Abort / Retry / Ignore',
+      btnClass: 'btn-outline-dark',
+      code: `this.modalieur
+  .show(MessageBoxDialog, {
+    data: { buttons: MessageBoxButtons.AbortRetryIgnore, /* ... */ },
+  })
+  .subscribe((o) => { /* Abort | Retry | Ignore */ });`,
+      run: () =>
+        this.openMessageBox(MessageBoxButtons.AbortRetryIgnore, 'Operation failed', 'What would you like to do?'),
+    },
+    {
+      id: 'mb-yesnocancel',
+      label: 'MessageBox: Yes / No / Cancel',
+      btnClass: 'btn-outline-dark',
+      code: `this.modalieur
+  .show(MessageBoxDialog, {
+    data: { buttons: MessageBoxButtons.YesNoCancel, /* ... */ },
+  })
+  .subscribe((o) => { /* Yes | No | Cancel */ });`,
+      run: () => this.openMessageBox(MessageBoxButtons.YesNoCancel, 'Save before closing?', 'You have unsaved changes.'),
+    },
+    {
+      id: 'mb-yesno',
+      label: 'MessageBox: Yes / No',
+      btnClass: 'btn-outline-dark',
+      code: `this.modalieur
+  .show(MessageBoxDialog, {
+    data: { buttons: MessageBoxButtons.YesNo, /* ... */ },
+  })
+  .subscribe((o) => { /* Yes | No */ });`,
+      run: () => this.openMessageBox(MessageBoxButtons.YesNo, 'Delete item?', 'This cannot be undone.'),
+    },
+    {
+      id: 'mb-retrycancel',
+      label: 'MessageBox: Retry / Cancel',
+      btnClass: 'btn-outline-dark',
+      code: `this.modalieur
+  .show(MessageBoxDialog, {
+    data: { buttons: MessageBoxButtons.RetryCancel, /* ... */ },
+  })
+  .subscribe((o) => { /* Retry | Cancel */ });`,
+      run: () => this.openMessageBox(MessageBoxButtons.RetryCancel, 'Connection lost', 'Could not reach the server.'),
+    },
+    {
+      id: 'mb-canceltrycontinue',
+      label: 'MessageBox: Cancel / Try Again / Continue',
+      btnClass: 'btn-outline-dark',
+      code: `this.modalieur
+  .show(MessageBoxDialog, {
+    data: { buttons: MessageBoxButtons.CancelTryContinue, /* ... */ },
+  })
+  .subscribe((o) => { /* Cancel | TryAgain | Continue */ });`,
+      run: () =>
+        this.openMessageBox(MessageBoxButtons.CancelTryContinue, 'File in use', 'The file could not be written.'),
+    },
+    {
+      id: 'mb-projection',
+      label: 'MessageBox: content projection',
+      btnClass: 'btn-outline-dark',
+      code: `// In your component's template:
+<mdlr-message-box>
+  <div mbHeader>…</div>
+  <div mbBody>…</div>
+  <div mbFooter class="d-flex gap-2">
+    <button (click)="cancel()">Dismiss</button>
+    <button (click)="ok()">Got it</button>
+  </div>
+</mdlr-message-box>
+
+// Then open your wrapper component:
+this.modalieur.show(CustomMessageBoxComponent).subscribe((o) => { /* ... */ });`,
+      run: () => this.openCustomMessageBox(),
+    },
   ];
 
   protected openConfirm(): void {
@@ -220,6 +324,16 @@ this.modalieur
     this.modalieur
       .show(PlainModalComponent, { unstyled: true })
       .subscribe((outcome) => this.report(outcome));
+  }
+
+  protected openMessageBox(buttons: MessageBoxButtons, title: string, message: string): void {
+    this.modalieur
+      .show(MessageBoxDialog, { data: { title, message, buttons } })
+      .subscribe((outcome) => this.report(outcome));
+  }
+
+  protected openCustomMessageBox(): void {
+    this.modalieur.show(CustomMessageBoxComponent).subscribe((outcome) => this.report(outcome));
   }
 
   private report(outcome: ModalOutcome): void {
