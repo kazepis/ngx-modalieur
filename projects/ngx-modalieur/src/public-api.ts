@@ -7,3 +7,4 @@ export * from './lib/modal-outcome';
 export * from './lib/modal-config';
 export * from './lib/modal-data.token';
 export * from './lib/modal-ref';
+export * from './lib/bootstrap-dialog-container';
