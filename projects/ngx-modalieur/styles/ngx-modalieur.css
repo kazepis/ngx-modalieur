@@ -1,0 +1,45 @@
+/*
+ * ngx-modalieur bridging styles.
+ *
+ * Bridges Angular CDK overlay with Bootstrap 5.3 modal looks. Requires the
+ * consumer to also include Bootstrap 5.3 CSS and `@angular/cdk/overlay-prebuilt.css`.
+ *
+ * Add to your app's global styles, e.g. in angular.json:
+ *   "node_modules/@kazepis/ngx-modalieur/styles/ngx-modalieur.css"
+ */
+
+/* Match Bootstrap's `.modal-backdrop.show` (the CDK dark backdrop is too light). */
+.mdlr-modal-backdrop.cdk-overlay-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Let the dialog size itself like a Bootstrap modal within the centered pane. */
+.mdlr-modal-pane {
+  max-width: 100vw;
+}
+
+.mdlr-modal-pane .modal-content {
+  pointer-events: auto;
+}
+
+/* Comparable enter transition to Bootstrap's fade + slide-down. */
+.mdlr-modal-pane .modal-dialog {
+  animation: mdlr-modal-enter 0.25s ease-out;
+}
+
+@keyframes mdlr-modal-enter {
+  from {
+    opacity: 0;
+    transform: translate(0, -50px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mdlr-modal-pane .modal-dialog {
+    animation: none;
+  }
+}

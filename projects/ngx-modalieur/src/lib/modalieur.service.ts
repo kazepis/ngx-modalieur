@@ -55,11 +55,14 @@ export class ModalieurService {
   }
 
   private toDialogConfig<TData, C>(config: ModalConfig<TData>): DialogConfig<TData, DialogRef<ModalOutcome<TData>, C>> {
+    const panelClass = ['mdlr-modal-pane', ...this.asArray(config.panelClass)];
+
     const dialogConfig: DialogConfig<TData, DialogRef<ModalOutcome<TData>, C>> = {
       data: config.data,
       disableClose: config.dismissible === false,
       hasBackdrop: config.backdrop !== false,
-      panelClass: config.panelClass,
+      backdropClass: ['cdk-overlay-dark-backdrop', 'mdlr-modal-backdrop'],
+      panelClass,
       providers: [{ provide: MODAL_DATA, useValue: config.data ?? null }]
     };
 
@@ -76,5 +79,12 @@ export class ModalieurService {
     }
 
     return dialogConfig;
+  }
+
+  private asArray(value?: string | string[]): string[] {
+    if (!value) {
+      return [];
+    }
+    return Array.isArray(value) ? value : [value];
   }
 }
