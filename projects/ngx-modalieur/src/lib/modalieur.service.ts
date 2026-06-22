@@ -63,7 +63,10 @@ export class ModalieurService {
       hasBackdrop: config.backdrop !== false,
       backdropClass: ['cdk-overlay-dark-backdrop', 'mdlr-modal-backdrop'],
       panelClass,
-      providers: [{ provide: MODAL_DATA, useValue: config.data ?? null }]
+      providers: [
+        { provide: MODAL_DATA, useValue: config.data ?? null },
+        { provide: ModalRef, useFactory: () => new ModalRef(inject(DialogRef)) }
+      ]
     };
 
     if (!config.unstyled) {
