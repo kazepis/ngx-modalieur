@@ -13,13 +13,19 @@
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-/* Let the dialog size itself like a Bootstrap modal within the centered pane. */
+/*
+ * The pane and the `.modal` element are click-transparent so that clicks on the
+ * empty area fall through to the CDK backdrop (which handles dismissal). The
+ * `.modal-content` re-enables pointer events (Bootstrap already does this).
+ */
 .mdlr-modal-pane {
-  max-width: 100vw;
+  pointer-events: none;
 }
 
-.mdlr-modal-pane .modal-content {
-  pointer-events: auto;
+/* Bootstrap hides `.modal` by default; it is only rendered here while open. */
+.mdlr-modal-pane .modal {
+  display: block;
+  pointer-events: none;
 }
 
 /* Comparable enter transition to Bootstrap's fade + slide-down. */
