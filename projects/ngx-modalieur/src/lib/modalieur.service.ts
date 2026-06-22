@@ -21,48 +21,57 @@ export class ModalieurService {
   private readonly dialog = inject(Dialog);
   private readonly defaults = signal<ModalConfig>(inject(MODALIEUR_DEFAULT_CONFIG, { optional: true }) ?? {});
 
-  /** Opens a modal and emits its outcome when it closes. */
-  show<C, TData = ModalResultData<C>>(
+  /**
+   * Opens a modal and emits its outcome when it closes. `TIn` is the input data
+   * type (from `config.data`); the result-data type is inferred from the
+   * component's `ModalContent` base.
+   */
+  show<C, TIn = unknown>(
     component: Type<C>,
-    config?: ModalConfig<TData>
-  ): Observable<ModalOutcome<TData>> {
-    return this.showAndReturnRef<C, TData>(component, config).closed$;
+    config?: ModalConfig<TIn>
+  ): Observable<ModalOutcome<ModalResultData<C>>> {
+    return this.showAndReturnRef<C, TIn>(component, config).closed$;
   }
 
   /** Opens a modal that auto-closes when `until$` emits anything. */
-  showUntil<C, TData = ModalResultData<C>>(
+  showUntil<C, TIn = unknown>(
     component: Type<C>,
     until$: Observable<unknown>,
-    config?: ModalConfig<TData>
-  ): Observable<ModalOutcome<TData>> {
-    const ref = this.showAndReturnRef<C, TData>(component, config);
+    config?: ModalConfig<TIn>
+  ): Observable<ModalOutcome<ModalResultData<C>>> {
+    const ref = this.showAndReturnRef<C, TIn>(component, config);
     until$.pipe(take(1), takeUntil(ref.closed$)).subscribe(() => ref.close());
     return ref.closed$;
   }
 
   /** Opens a modal that auto-closes when `condition$` emits a truthy value. */
-  showUntilCondition<C, TData = ModalResultData<C>>(
+  showUntilCondition<C, TIn = unknown>(
     component: Type<C>,
     condition$: Observable<unknown>,
-    config?: ModalConfig<TData>
-  ): Observable<ModalOutcome<TData>> {
-    const ref = this.showAndReturnRef<C, TData>(component, config);
+    config?: ModalConfig<TIn>
+  ): Observable<ModalOutcome<ModalResultData<C>>> {
+    const ref = this.showAndReturnRef<C, TIn>(component, config);
     condition$.pipe(filter(Boolean), take(1), takeUntil(ref.closed$)).subscribe(() => ref.close());
     return ref.closed$;
   }
 
   /** Opens a modal and returns its `ModalRef` for programmatic control. */
-  showAndReturnRef<C, TData = ModalResultData<C>>(
+  showAndReturnRef<C, TIn = unknown>(
     component: Type<C>,
-    config?: ModalConfig<TData>
-  ): ModalRef<TData> {
-    const merged = { ...this.defaults(), ...config } as ModalConfig<TData>;
-    const dialogRef = this.dialog.open<ModalOutcome<TData>, TData, C>(component, this.toDialogConfig<TData, C>(merged));
-    return new ModalRef<TData>(dialogRef);
+    config?: ModalConfig<TIn>
+  ): ModalRef<ModalResultData<C>> {
+    const merged = { ...this.defaults(), ...config } as ModalConfig<TIn>;
+    const dialogRef = this.dialog.open<ModalOutcome<ModalResultData<C>>, TIn, C>(
+      component,
+      this.toDialogConfig<TIn, ModalResultData<C>, C>(merged)
+    );
+    return new ModalRef<ModalResultData<C>>(dialogRef);
   }
 
-  private toDialogConfig<TData, C>(config: ModalConfig<TData>): DialogConfig<TData, DialogRef<ModalOutcome<TData>, C>> {
-    const dialogConfig: DialogConfig<TData, DialogRef<ModalOutcome<TData>, C>> = {
+  private toDialogConfig<TIn, TOut, C>(
+    config: ModalConfig<TIn>
+  ): DialogConfig<TIn, DialogRef<ModalOutcome<TOut>, C>> {
+    const dialogConfig: DialogConfig<TIn, DialogRef<ModalOutcome<TOut>, C>> = {
       data: config.data,
       disableClose: config.dismissible === false,
       hasBackdrop: config.backdrop !== false,

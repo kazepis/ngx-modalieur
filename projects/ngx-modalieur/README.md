@@ -101,13 +101,22 @@ modal
 A user dismissal (backdrop click or Escape) resolves to `Cancel`. `Undefined` is only the
 zero-default and the result of a programmatic `close()` without an explicit result.
 
-### Returning data
+### Input data vs. result data
+
+These are two independent types:
+
+- **Input** — `config.data`, injected into the modal via `MODAL_DATA`.
+- **Result** — what the modal returns; declared by extending `ModalContent<TResult>` and read from `outcome.data`. It is inferred for you on `show(...)`.
 
 ```ts
-// inside a modal extending ModalContent
-this.respondWithData({ name });
-// caller
-modal.show(NamePromptComponent).subscribe(o => console.log(o.data));
+// Modal declares its RESULT type via ModalContent<T>; reads INPUT via MODAL_DATA.
+class EditModal extends ModalContent<{ saved: boolean }> {
+  data = inject<{ id: number }>(MODAL_DATA); // input
+  protected save = () => this.respondWithData({ saved: true }); // result
+}
+
+// Input is { id }, result is { saved } — no conflict.
+modal.show(EditModal, { data: { id: 7 } }).subscribe(o => console.log(o.data?.saved));
 ```
 
 ### `MODAL_DATA`
