@@ -92,14 +92,52 @@ modal
 ### `ModalConfig`
 
 `data`, `size` (`'sm' | 'lg' | 'xl' | 'fullscreen'`), `centered` (default `true`), `scrollable`,
-`dismissible` (default `true`), `backdrop` (default `true`), `panelClass`, `unstyled`.
+`dismissible` (default `true`), `backdrop` (default `true`), `unstyled`.
 
 ### `ModalResult`
 
-`Undefined` (0, the uninitialized-variable safeguard), `Data`, `Yes`, `No`, `Ok`, `Cancel`.
+`Undefined` (0, the uninitialized-variable safeguard), `Data`, `Yes`, `No`, `Ok`, `Cancel`,
+`Abort`, `Retry`, `Ignore`, `TryAgain`, `Continue`.
 
 A user dismissal (backdrop click or Escape) resolves to `Cancel`. `Undefined` is only the
 zero-default and the result of a programmatic `close()` without an explicit result.
+
+### `MessageBoxDialog`
+
+A built-in Bootstrap message box. Use it config-driven, with Windows-Forms-style button sets
+(`MessageBoxButtons`: `OK`, `OKCancel`, `AbortRetryIgnore`, `YesNoCancel`, `YesNo`, `RetryCancel`,
+`CancelTryContinue`):
+
+```ts
+modal
+  .show(MessageBoxDialog, {
+    data: { title: 'Delete item?', message: 'This cannot be undone.', buttons: MessageBoxButtons.YesNo },
+  })
+  .subscribe((o) => {
+    if (o.result === ModalResult.Yes) {
+      // ...
+    }
+  });
+```
+
+Or with content projection — wrap `<mdlr-message-box>` in your own component and project the parts:
+
+```ts
+@Component({
+  imports: [MessageBoxDialog],
+  template: `
+    <mdlr-message-box>
+      <div mbHeader>Custom header</div>
+      <div mbBody>Custom body</div>
+      <div mbFooter class="d-flex gap-2">
+        <button class="btn btn-secondary" (click)="cancel()">Dismiss</button>
+        <button class="btn btn-primary" (click)="ok()">Got it</button>
+      </div>
+    </mdlr-message-box>
+  `,
+})
+export class MyMessageBox extends ModalContent {}
+```
 
 ### Input data vs. result data
 
