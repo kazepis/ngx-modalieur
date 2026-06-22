@@ -3,7 +3,7 @@ import { ModalieurService, ModalOutcome, ModalResult } from '@kazepis/ngx-modali
 import { concat, map, timer } from 'rxjs';
 
 import { ConfirmModalComponent } from './modals/confirm-modal.component';
-import { NamePromptModalComponent, NamePromptResult } from './modals/name-prompt-modal.component';
+import { NamePromptModalComponent } from './modals/name-prompt-modal.component';
 import { WaitingModalComponent } from './modals/waiting-modal.component';
 
 @Component({
@@ -64,9 +64,8 @@ export class App {
   }
 
   protected openNamePrompt(): void {
-    this.modalieur
-      .show<NamePromptModalComponent, NamePromptResult>(NamePromptModalComponent)
-      .subscribe((outcome) => this.report(outcome));
+    // The result-data type (NamePromptResult) is inferred from the component.
+    this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => this.report(outcome));
   }
 
   private report(outcome: ModalOutcome): void {

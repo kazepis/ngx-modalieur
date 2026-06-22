@@ -4,6 +4,12 @@ import { ModalRef } from './modal-ref';
 import { ModalResult } from './modal-result.enum';
 
 /**
+ * Extracts the result-data type a component declares by extending
+ * `ModalContent<T>`. Falls back to `unknown` for components that don't.
+ */
+export type ModalResultData<C> = C extends ModalContent<infer TData> ? TData : unknown;
+
+/**
  * Optional base class for modal components. Provides Windows-Forms-style
  * helpers that close the modal with a `ModalResult`. Components may instead
  * inject `ModalRef` directly.

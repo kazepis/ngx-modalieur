@@ -5,6 +5,7 @@ import { filter, Observable, take, takeUntil } from 'rxjs';
 import { BOOTSTRAP_MODAL_OPTIONS } from './bootstrap-modal-options';
 import { BootstrapDialogContainer } from './bootstrap-dialog-container';
 import { ModalConfig } from './modal-config';
+import { ModalResultData } from './modal-content';
 import { MODAL_DATA } from './modal-data.token';
 import { ModalOutcome } from './modal-outcome';
 import { ModalRef } from './modal-ref';
@@ -21,12 +22,15 @@ export class ModalieurService {
   private readonly defaults = signal<ModalConfig>(inject(MODALIEUR_DEFAULT_CONFIG, { optional: true }) ?? {});
 
   /** Opens a modal and emits its outcome when it closes. */
-  show<C, TData = unknown>(component: Type<C>, config?: ModalConfig<TData>): Observable<ModalOutcome<TData>> {
+  show<C, TData = ModalResultData<C>>(
+    component: Type<C>,
+    config?: ModalConfig<TData>
+  ): Observable<ModalOutcome<TData>> {
     return this.showAndReturnRef<C, TData>(component, config).closed$;
   }
 
   /** Opens a modal that auto-closes when `until$` emits anything. */
-  showUntil<C, TData = unknown>(
+  showUntil<C, TData = ModalResultData<C>>(
     component: Type<C>,
     until$: Observable<unknown>,
     config?: ModalConfig<TData>
@@ -37,7 +41,7 @@ export class ModalieurService {
   }
 
   /** Opens a modal that auto-closes when `condition$` emits a truthy value. */
-  showUntilCondition<C, TData = unknown>(
+  showUntilCondition<C, TData = ModalResultData<C>>(
     component: Type<C>,
     condition$: Observable<unknown>,
     config?: ModalConfig<TData>
@@ -48,7 +52,10 @@ export class ModalieurService {
   }
 
   /** Opens a modal and returns its `ModalRef` for programmatic control. */
-  showAndReturnRef<C, TData = unknown>(component: Type<C>, config?: ModalConfig<TData>): ModalRef<TData> {
+  showAndReturnRef<C, TData = ModalResultData<C>>(
+    component: Type<C>,
+    config?: ModalConfig<TData>
+  ): ModalRef<TData> {
     const merged = { ...this.defaults(), ...config } as ModalConfig<TData>;
     const dialogRef = this.dialog.open<ModalOutcome<TData>, TData, C>(component, this.toDialogConfig<TData, C>(merged));
     return new ModalRef<TData>(dialogRef);
