@@ -1,5 +1,3 @@
 /*
- * Public API Surface of ngx-modalieur
+ * Public API Surface of @kazepis/ngx-modalieur
  */
-
-export * from './lib/ngx-modalieur';
