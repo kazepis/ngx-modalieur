@@ -6,5 +6,97 @@
   },
   "newProjectRoot": "projects",
   "projects": {
+    "ngx-modalieur": {
+      "projectType": "library",
+      "root": "projects/ngx-modalieur",
+      "sourceRoot": "projects/ngx-modalieur/src",
+      "prefix": "mdlr",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/ngx-modalieur/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/ngx-modalieur/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/ngx-modalieur/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "ngx-modalieur-consumer-sample-app": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/ngx-modalieur-consumer-sample-app",
+      "sourceRoot": "projects/ngx-modalieur-consumer-sample-app/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/ngx-modalieur-consumer-sample-app/src/main.ts",
+            "tsConfig": "projects/ngx-modalieur-consumer-sample-app/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/ngx-modalieur-consumer-sample-app/public"
+              }
+            ],
+            "styles": ["projects/ngx-modalieur-consumer-sample-app/src/styles.scss"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "ngx-modalieur-consumer-sample-app:build:production"
+            },
+            "development": {
+              "buildTarget": "ngx-modalieur-consumer-sample-app:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        }
+      }
+    }
   }
 }

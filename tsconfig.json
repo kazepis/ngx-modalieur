@@ -7,6 +7,9 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "ngx-modalieur": ["./dist/ngx-modalieur"]
+    },
     "skipLibCheck": true,
     "isolatedModules": true,
     "experimentalDecorators": true,
@@ -19,5 +22,19 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true
   },
-  "files": []
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/ngx-modalieur/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/ngx-modalieur/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/ngx-modalieur-consumer-sample-app/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/ngx-modalieur-consumer-sample-app/tsconfig.spec.json"
+    }
+  ]
 }
