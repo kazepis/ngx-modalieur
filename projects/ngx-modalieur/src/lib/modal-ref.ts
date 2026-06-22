@@ -13,8 +13,10 @@ export class ModalRef<TData = unknown> {
   readonly id: string;
 
   /**
-   * Emits exactly once when the modal closes. A dismissal (backdrop click /
-   * Escape) resolves to `{ result: ModalResult.Undefined }`.
+   * Emits exactly once when the modal closes. A user dismissal (backdrop click
+   * or Escape) resolves to `{ result: ModalResult.Cancel }`, consistent with a
+   * close/cancel button. Programmatic `close()` without a result stays
+   * `ModalResult.Undefined`.
    */
   readonly closed$: Observable<ModalOutcome<TData>>;
 
@@ -23,7 +25,7 @@ export class ModalRef<TData = unknown> {
   constructor(private readonly dialogRef: DialogRef<ModalOutcome<TData>, any>) {
     this.id = dialogRef.id;
     this.closed$ = dialogRef.closed.pipe(
-      map(outcome => outcome ?? { result: ModalResult.Undefined })
+      map(outcome => outcome ?? { result: ModalResult.Cancel })
     );
   }
 

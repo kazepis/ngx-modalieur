@@ -96,7 +96,10 @@ modal
 
 ### `ModalResult`
 
-`Undefined` (0, the safe default / dismissal value), `Data`, `Yes`, `No`, `Ok`, `Cancel`.
+`Undefined` (0, the uninitialized-variable safeguard), `Data`, `Yes`, `No`, `Ok`, `Cancel`.
+
+A user dismissal (backdrop click or Escape) resolves to `Cancel`. `Undefined` is only the
+zero-default and the result of a programmatic `close()` without an explicit result.
 
 ### Returning data
 

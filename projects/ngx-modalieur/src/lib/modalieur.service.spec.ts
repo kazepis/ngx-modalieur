@@ -50,13 +50,13 @@ describe('ModalieurService', () => {
     expect(received).toEqual([{ result: ModalResult.Yes, data: { ok: true } }]);
   });
 
-  it('falls back to Undefined when the modal is dismissed', () => {
+  it('maps a user dismissal (backdrop/Escape) to Cancel', () => {
     const received: ModalOutcome[] = [];
     service.show(DummyModal).subscribe(o => received.push(o));
 
     dialog.ref.close(undefined);
 
-    expect(received).toEqual([{ result: ModalResult.Undefined }]);
+    expect(received).toEqual([{ result: ModalResult.Cancel }]);
   });
 
   it('showUntilCondition closes only on a truthy emission', () => {
