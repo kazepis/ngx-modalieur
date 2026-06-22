@@ -9,5 +9,10 @@ export enum ModalResult {
   Yes,
   No,
   Ok,
-  Cancel
+  Cancel,
+  Abort,
+  Retry,
+  Ignore,
+  TryAgain,
+  Continue
 }

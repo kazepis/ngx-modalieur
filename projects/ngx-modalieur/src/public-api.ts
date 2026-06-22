@@ -9,5 +9,7 @@ export * from './lib/modal-data.token';
 export * from './lib/modal-ref';
 export * from './lib/modal-content';
 export * from './lib/bootstrap-dialog-container';
+export * from './lib/message-box-buttons.enum';
+export * from './lib/message-box.component';
 export * from './lib/modalieur.service';
 export * from './lib/provide-modalieur';
