@@ -1,64 +1,120 @@
-# NgxModalieur
+# @kazepis/ngx-modalieur
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.0.
+Reactive, Bootstrap 5.3-styled modals for Angular, built on top of Angular CDK `Dialog`.
 
-## Code scaffolding
+- Open a modal and `subscribe` to its result, Windows-Forms-`MessageBox` style.
+- Every modal is wrapped in a Bootstrap `.modal-dialog > .modal-content` container automatically.
+- CDK powers focus trapping, Escape/backdrop handling, and accessibility under the hood, but never leaks into your code.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Installation
 
 ```bash
-ng generate --help
+npm install @kazepis/ngx-modalieur @angular/cdk bootstrap
 ```
 
-## Building
+`@angular/cdk` is a required peer dependency. `bootstrap` is an optional peer dependency (needed for the default Bootstrap look).
 
-To build the library, run:
+## Styles
 
-```bash
-ng build ngx-modalieur
+Add the following global stylesheets (e.g. in `angular.json` `styles`):
+
+```json
+"node_modules/bootstrap/dist/css/bootstrap.min.css",
+"node_modules/@angular/cdk/overlay-prebuilt.css",
+"node_modules/@kazepis/ngx-modalieur/styles/ngx-modalieur.css"
 ```
 
-This command will compile your project, and the build artifacts will be placed in the `dist/` directory.
+## Quick start
 
-### Publishing the Library
+```ts
+// app.config.ts — optional app-wide defaults
+import { provideModalieur } from '@kazepis/ngx-modalieur';
 
-Once the project is built, you can publish your library by following these steps:
-
-1. Navigate to the `dist` directory:
-
-   ```bash
-   cd dist/ngx-modalieur
-   ```
-
-2. Run the `npm publish` command to publish your library to the npm registry:
-   ```bash
-   npm publish
-   ```
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
+export const appConfig = {
+  providers: [provideModalieur({ dismissible: false, size: 'lg' })]
+};
 ```
 
-## Running end-to-end tests
+A modal is just a component that renders the Bootstrap inner sections and closes itself
+via the `ModalContent` helpers:
 
-For end-to-end (e2e) testing, run:
+```ts
+import { Component, inject } from '@angular/core';
+import { MODAL_DATA, ModalContent } from '@kazepis/ngx-modalieur';
 
-```bash
-ng e2e
+@Component({
+  standalone: true,
+  template: `
+    <div class="modal-header">
+      <h5 class="modal-title">{{ data.title }}</h5>
+      <button class="btn-close" (click)="cancel()"></button>
+    </div>
+    <div class="modal-body">{{ data.message }}</div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="no()">No</button>
+      <button class="btn btn-primary" (click)="yes()">Yes</button>
+    </div>
+  `
+})
+export class ConfirmModalComponent extends ModalContent {
+  protected readonly data = inject<{ title: string; message: string }>(MODAL_DATA);
+}
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Open it and react to the outcome:
 
-## Additional Resources
+```ts
+import { inject } from '@angular/core';
+import { ModalieurService, ModalResult } from '@kazepis/ngx-modalieur';
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+const modal = inject(ModalieurService);
+
+modal
+  .show(ConfirmModalComponent, { data: { title: 'Confirm', message: 'Are you sure?' } })
+  .subscribe(outcome => {
+    if (outcome.result === ModalResult.Yes) {
+      // ...
+    }
+  });
+```
+
+## API
+
+### `ModalieurService`
+
+| Method | Description |
+| --- | --- |
+| `show(component, config?)` | Opens a modal; emits the `ModalOutcome` when it closes. |
+| `showUntil(component, until$, config?)` | Also closes the modal when `until$` emits anything. |
+| `showUntilCondition(component, condition$, config?)` | Also closes when `condition$` emits a truthy value. |
+| `showAndReturnRef(component, config?)` | Returns a `ModalRef` for programmatic control. |
+
+### `ModalConfig`
+
+`data`, `size` (`'sm' | 'lg' | 'xl' | 'fullscreen'`), `centered` (default `true`), `scrollable`,
+`dismissible` (default `true`), `backdrop` (default `true`), `panelClass`, `unstyled`.
+
+### `ModalResult`
+
+`Undefined` (0, the safe default / dismissal value), `Data`, `Yes`, `No`, `Ok`, `Cancel`.
+
+### Returning data
+
+```ts
+// inside a modal extending ModalContent
+this.respondWithData({ name });
+// caller
+modal.show(NamePromptComponent).subscribe(o => console.log(o.data));
+```
+
+### `MODAL_DATA`
+
+Inject the `data` passed via `ModalConfig.data`:
+
+```ts
+private readonly data = inject<MyData>(MODAL_DATA);
+```
+
+## License
+
+MIT
