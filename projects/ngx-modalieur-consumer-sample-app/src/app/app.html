@@ -2,19 +2,22 @@
   <h1 class="mb-1">ngx-modalieur</h1>
   <p class="text-body-secondary mb-4">Bootstrap-styled modals over Angular CDK Dialog, with reactive results.</p>
 
-  <div class="d-flex flex-wrap gap-2 mb-4">
-    <button type="button" class="btn btn-primary" (click)="openConfirm()">Confirm (Yes / No)</button>
-    <button type="button" class="btn btn-outline-primary" (click)="openLarge()">Large size</button>
-    <button type="button" class="btn btn-outline-primary" (click)="openStatic()">Non-dismissible</button>
-    <button type="button" class="btn btn-outline-primary" (click)="openWaiting()">Auto-close (showUntil)</button>
-    <button type="button" class="btn btn-outline-primary" (click)="openConditional()">
-      Auto-close on condition (showUntilCondition)
-    </button>
-    <button type="button" class="btn btn-outline-primary" (click)="openNamePrompt()">Returns data</button>
-    <button type="button" class="btn btn-outline-secondary" (click)="openUnstyled()">No Bootstrap (unstyled)</button>
+  <div class="alert alert-secondary" role="status">
+    <strong>Last outcome:</strong> {{ lastOutcome() }}
   </div>
 
-  <div class="alert alert-secondary mb-0" role="status">
-    <strong>Last outcome:</strong> {{ lastOutcome() }}
+  <div class="row g-4">
+    @for (example of examples; track example.id) {
+      <div class="col-12 col-lg-6">
+        <div class="card h-100">
+          <div class="card-body d-flex flex-column">
+            <button type="button" class="btn align-self-start mb-3 {{ example.btnClass }}" (click)="example.run()">
+              {{ example.label }}
+            </button>
+            <pre class="bg-body-tertiary border rounded p-3 mb-0 small"><code>{{ example.code }}</code></pre>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 </main>

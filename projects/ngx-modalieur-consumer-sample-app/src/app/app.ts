@@ -7,6 +7,14 @@ import { NamePromptModalComponent } from './modals/name-prompt-modal.component';
 import { PlainModalComponent } from './modals/plain-modal.component';
 import { WaitingModalComponent } from './modals/waiting-modal.component';
 
+interface DemoExample {
+  id: string;
+  label: string;
+  btnClass: string;
+  code: string;
+  run: () => void;
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -16,6 +24,94 @@ export class App {
   private readonly modalieur = inject(ModalieurService);
 
   protected readonly lastOutcome = signal('—');
+
+  protected readonly examples: DemoExample[] = [
+    {
+      id: 'confirm',
+      label: 'Confirm (Yes / No)',
+      btnClass: 'btn-primary',
+      code: `this.modalieur
+  .show(ConfirmModalComponent, {
+    data: { title: 'Confirm', message: 'Do you want to continue?' },
+  })
+  .subscribe((outcome) => {
+    if (outcome.result === ModalResult.Yes) {
+      // ...
+    }
+  });`,
+      run: () => this.openConfirm(),
+    },
+    {
+      id: 'large',
+      label: 'Large size',
+      btnClass: 'btn-outline-primary',
+      code: `this.modalieur
+  .show(ConfirmModalComponent, { size: 'lg', data })
+  .subscribe((outcome) => { /* ... */ });`,
+      run: () => this.openLarge(),
+    },
+    {
+      id: 'fullscreen',
+      label: 'Fullscreen',
+      btnClass: 'btn-outline-primary',
+      code: `this.modalieur
+  .show(ConfirmModalComponent, { size: 'fullscreen', data })
+  .subscribe((outcome) => { /* ... */ });`,
+      run: () => this.openFullscreen(),
+    },
+    {
+      id: 'static',
+      label: 'Non-dismissible',
+      btnClass: 'btn-outline-primary',
+      code: `// Backdrop click + Escape will not close it.
+this.modalieur
+  .show(ConfirmModalComponent, { dismissible: false, data })
+  .subscribe((outcome) => { /* ... */ });`,
+      run: () => this.openStatic(),
+    },
+    {
+      id: 'until',
+      label: 'Auto-close (showUntil)',
+      btnClass: 'btn-outline-primary',
+      code: `// Closes when the observable emits anything.
+this.modalieur
+  .showUntil(WaitingModalComponent, timer(2000))
+  .subscribe((outcome) => { /* ... */ });`,
+      run: () => this.openWaiting(),
+    },
+    {
+      id: 'condition',
+      label: 'Auto-close on condition (showUntilCondition)',
+      btnClass: 'btn-outline-primary',
+      code: `// Closes on the first TRUTHY emission.
+this.modalieur
+  .showUntilCondition(WaitingModalComponent, ready$)
+  .subscribe((outcome) => { /* ... */ });`,
+      run: () => this.openConditional(),
+    },
+    {
+      id: 'data',
+      label: 'Returns data',
+      btnClass: 'btn-outline-primary',
+      code: `// Result-data type is inferred from the component.
+this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => {
+  if (outcome.result === ModalResult.Data) {
+    console.log(outcome.data?.name);
+  }
+});`,
+      run: () => this.openNamePrompt(),
+    },
+    {
+      id: 'unstyled',
+      label: 'No Bootstrap (unstyled)',
+      btnClass: 'btn-outline-secondary',
+      code: `// No Bootstrap container; the component brings its own styles.
+this.modalieur
+  .show(PlainModalComponent, { unstyled: true })
+  .subscribe((outcome) => { /* ... */ });`,
+      run: () => this.openUnstyled(),
+    },
+  ];
 
   protected openConfirm(): void {
     this.modalieur
@@ -34,6 +130,15 @@ export class App {
       .subscribe((outcome) => this.report(outcome));
   }
 
+  protected openFullscreen(): void {
+    this.modalieur
+      .show(ConfirmModalComponent, {
+        size: 'fullscreen',
+        data: { title: 'Fullscreen modal', message: 'This dialog uses size: fullscreen.' },
+      })
+      .subscribe((outcome) => this.report(outcome));
+  }
+
   protected openStatic(): void {
     this.modalieur
       .show(ConfirmModalComponent, {
@@ -45,9 +150,7 @@ export class App {
 
   protected openWaiting(): void {
     this.modalieur
-      .showUntil(WaitingModalComponent, timer(2000), {
-        data: { title: 'Waiting', message: 'This will close after 2 seconds.' },
-      })
+      .showUntil(WaitingModalComponent, timer(2000))
       .subscribe((outcome) => this.report(outcome));
   }
 
@@ -58,15 +161,19 @@ export class App {
       timer(1500).pipe(map(() => true)),
     );
     this.modalieur
-      .showUntilCondition(WaitingModalComponent, condition$, {
-        data: { title: 'Conditional close', message: 'This will close after 2.5 seconds.' },
-      })
+      .showUntilCondition(WaitingModalComponent, condition$)
       .subscribe((outcome) => this.report(outcome));
   }
 
   protected openNamePrompt(): void {
     // The result-data type (NamePromptResult) is inferred from the component.
-    this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => this.report(outcome));
+    this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => {
+      if (outcome.result === ModalResult.Data) {
+        console.log(outcome.data?.name);
+      }
+
+      this.report(outcome);
+    });
   }
 
   protected openUnstyled(): void {
@@ -78,6 +185,8 @@ export class App {
 
   private report(outcome: ModalOutcome): void {
     const label = ModalResult[outcome.result];
-    this.lastOutcome.set(outcome.data ? `${label} - ${JSON.stringify(outcome.data)}` : label);
+    this.lastOutcome.set(
+      outcome.data ? `ModalResult: ${label} - Data: ${JSON.stringify(outcome.data)}` : label,
+    );
   }
 }
