@@ -1,5 +1,6 @@
 export enum ExampleId {
   Setup = 'setup',
+  Reactive = 'reactive',
   Confirm = 'confirm',
   ConfirmShorthand = 'confirm-shorthand',
   MessageBoxShorthand = 'message-box-shorthand',

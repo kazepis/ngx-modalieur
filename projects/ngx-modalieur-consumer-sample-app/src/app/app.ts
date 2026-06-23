@@ -60,6 +60,44 @@ providers: [provideModalieur({ size: 'lg' })] `,
       ]
     },
     {
+      title: 'Reactive handling',
+      examples: [
+        {
+          id: ExampleId.Reactive,
+          section: 'Reactive handling',
+          label: 'Why reactive? — subscribe once, act on the outcome',
+          btnClass: 'btn-secondary',
+          code: `// The core idea: open → subscribe → react. One emission when the modal closes.
+this.modalieur
+  .show(ConfirmModalComponent, { data: { title: 'Delete?', message: 'Sure?' } })
+  .subscribe((outcome) => {
+    if (outcome.result === ModalResult.Yes) {
+      this.deleteItem();
+    }
+  });
+
+// Chain with RxJS — no callback pyramid
+this.modalieur
+  .confirm('Delete item?', 'This cannot be undone.')
+  .pipe(
+    filter((result) => result === ModalResult.Yes),
+    switchMap(() => this.api.delete(id)),
+  )
+  .subscribe();
+
+// Auto-close when an external observable emits (hub event, timer, etc.)
+this.modalieur
+  .showUntil(WaitingModalComponent, sessionEnded$)
+  .subscribe((outcome) => {
+    // outcome.result === ModalResult.AutoClose when sessionEnded$ fired
+  });
+
+// vs. imperative style: showAndReturnRef → hide() → setResult(id, type) on a global bus`,
+          run: () => {}
+        }
+      ]
+    },
+    {
       title: 'Basics',
       examples: [
         {

@@ -1,16 +1,19 @@
 <main class="container py-5">
   <h1 class="mb-1">ngx-modalieur</h1>
-  <p class="text-body-secondary mb-4">Bootstrap-styled modals over Angular CDK Dialog, with reactive results.</p>
+  <p class="text-body-secondary mb-4">
+    Bootstrap-styled modals over Angular CDK Dialog. Open a modal, <code>subscribe</code> to the result — no modal IDs or
+    global result buses.
+  </p>
 
   @for (section of sections; track section.title) {
     <section class="mb-5">
       <h2 class="h4 mb-3">{{ section.title }}</h2>
       <div class="row g-4">
         @for (example of section.examples; track example.id) {
-          <div class="col-12 col-lg-6">
+          <div class="col-12" [class.col-lg-6]="section.examples.length > 1">
             <div class="card h-100">
               <div class="card-body d-flex flex-column">
-                @if (example.id !== ExampleId.Setup) {
+                @if (example.id !== ExampleId.Setup && example.id !== ExampleId.Reactive) {
                   <button type="button" class="btn align-self-start mb-3 {{ example.btnClass }}" (click)="example.run()">
                     {{ example.label }}
                   </button>
@@ -20,7 +23,9 @@
                 } @else {
                   <p class="text-body-secondary small mb-3">{{ example.label }}</p>
                 }
-                <pre class="demo-code bg-body-tertiary border rounded mb-0 small flex-grow-1"><code [highlightAuto]="example.code" lineNumbers></code></pre>
+                <pre
+                  class="demo-code bg-body-tertiary border rounded mb-0 small flex-grow-1"
+                ><code [highlightAuto]="example.code" lineNumbers></code></pre>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@
 Reactive, Bootstrap 5.3-styled modals for Angular, built on top of Angular CDK `Dialog`.
 
 - Open a modal and `subscribe` to its result, Windows-Forms-`MessageBox` style.
+- **Reactive first** — every open method returns an `Observable`; compose with RxJS, no modal IDs or callback buses.
 - Every modal is wrapped in a Bootstrap `.modal-dialog > .modal-content` container automatically.
 - CDK is not required in your modal components; the service handles focus trapping, backdrop, and Escape. Advanced container customization is optional and CDK-coupled.
 
@@ -89,6 +90,80 @@ modal.show(ConfirmModalComponent, { data: { title: 'Confirm', message: 'Are you 
   }
 });
 ```
+
+## Reactive modal handling
+
+The main reason to use ngx-modalieur is **reactive modal handling**: opening a modal returns an `Observable` that emits once when the dialog closes. Your business logic stays in one linear `subscribe` (or `pipe`) — no shared result bus, no modal IDs, no `setResult(id, …)` wiring.
+
+### Compared to imperative / callback-style modals
+
+Many Angular modal stacks look like this:
+
+```ts
+// Open → get a ref → listen on a global Subject filtered by ref.id → setResult in the component
+const ref = modalService.showAndReturnRef(MyModal);
+modalService.getModalResult(ref).subscribe(result => { /* ... */ });
+
+// Inside the modal component:
+this.modalRef.hide();
+this.modalService.setResult(this.modalRef.id, ResultType.Yes);
+```
+
+ngx-modalieur collapses that into:
+
+```ts
+modalieur.show(MyModal, { data }).subscribe(outcome => {
+  if (outcome.result === ModalResult.Yes) {
+    this.save();
+  }
+});
+
+// Inside the modal component (extends ModalContent):
+protected confirm = () => this.yes(); // closes and emits — no service injection
+```
+
+The modal component does not know about a global service. Closing the dialog **is** emitting the result.
+
+### Compose with the rest of your app
+
+Because the API is Observable-based, modals fit naturally into RxJS pipelines:
+
+```ts
+// Chain a confirm before a destructive action
+this.modalieur
+  .confirm('Delete item?', 'This cannot be undone.')
+  .pipe(
+    filter(result => result === ModalResult.Yes),
+    switchMap(() => this.api.deleteItem(id))
+  )
+  .subscribe();
+
+// Auto-close when an external signal fires (session ended, timer, hub event)
+this.modalieur
+  .showUntil(ShareScreenModal, this.hub.sessionEnded$)
+  .subscribe(outcome => {
+    if (outcome.result === ModalResult.Yes) {
+      this.startSharing();
+    }
+  });
+
+// Hold a ref for imperative work, still react via closed$
+const ref = this.modalieur.showAndReturnRef(SpinnerModal, { dismissible: false });
+ref.closed$.subscribe(outcome => this.onSaveComplete(outcome));
+await this.save();
+ref.close(ModalResult.Ok, { savedId });
+```
+
+### What you get back
+
+| API | Emits | When |
+| --- | ----- | ---- |
+| `show(…)` | `ModalOutcome<T>` | User closes or dismisses |
+| `confirm()` / `alert()` / `messageBox()` | `ModalResult` | Button click or dismiss |
+| `showUntil(…)` / `showUntilCondition(…)` | `ModalOutcome` with `AutoClose` | User action **or** observable fires |
+| `showAndReturnRef(…).closed$` | `ModalOutcome<T>` | Same as `show`, but you also hold `ModalRef` |
+
+`ModalOutcome` is `{ result: ModalResult; data?: T }` — one emission, then complete. Treat it like any other one-shot async result in Angular.
 
 ## API
 
