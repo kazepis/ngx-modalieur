@@ -2,18 +2,18 @@ import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
 import { inject, Injectable, signal, Type } from '@angular/core';
 import { filter, map, Observable, take, takeUntil } from 'rxjs';
 
-import { MessageBoxDialog, MESSAGE_BOX_BODY_ID, MESSAGE_BOX_TITLE_ID } from './components/message-box/message-box.dialog';
-import { MessageBoxOptions } from './components/message-box/message-box-options';
-import { MessageBoxButtons } from './components/message-box/message-box-buttons.enum';
 import { BootstrapDialogContainer } from './components/bootstrap-modal/bootstrap-dialog-container';
+import { MessageBoxButtons } from './components/message-box/message-box-buttons.enum';
+import { MessageBoxOptions } from './components/message-box/message-box-options';
+import { MESSAGE_BOX_BODY_ID, MESSAGE_BOX_TITLE_ID, MessageBoxDialog } from './components/message-box/message-box.dialog';
 import { ModalConfig } from './modal-config';
 import { MODAL_DATA } from './modal-data.token';
+import { MODALIEUR_DEFAULTS } from './modal-defaults';
 import { ModalOutcome } from './modal-outcome';
 import { ModalRef } from './modal-ref';
-import { ModalResult } from './modal-result.enum';
 import { ModalResultData } from './modal-result-data';
+import { ModalResult } from './modal-result.enum';
 import { MODALIEUR_CONFIG } from './provide-modalieur';
-import { MODALIEUR_DEFAULTS } from './modal-defaults';
 
 /**
  * Opens Bootstrap-styled modals on top of Angular CDK `Dialog` and exposes the
@@ -87,10 +87,7 @@ export class ModalieurService {
    * Opens a config-driven {@link MessageBoxDialog} and emits only the
    * `ModalResult` (not the full `ModalOutcome`).
    */
-  messageBox(
-    options: MessageBoxOptions,
-    config?: Omit<ModalConfig<MessageBoxOptions>, 'data'>
-  ): Observable<ModalResult> {
+  messageBox(options: MessageBoxOptions, config?: Omit<ModalConfig<MessageBoxOptions>, 'data'>): Observable<ModalResult> {
     return this.show(MessageBoxDialog, { ...this.withMessageBoxA11y(config), data: options }).pipe(
       map(outcome => outcome.result)
     );

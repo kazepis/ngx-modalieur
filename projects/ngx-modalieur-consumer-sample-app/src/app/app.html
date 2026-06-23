@@ -10,7 +10,7 @@
           <div class="col-12 col-lg-6">
             <div class="card h-100">
               <div class="card-body d-flex flex-column">
-                @if (example.id !== 'setup') {
+                @if (example.id !== ExampleId.Setup) {
                   <button type="button" class="btn align-self-start mb-3 {{ example.btnClass }}" (click)="example.run()">
                     {{ example.label }}
                   </button>
@@ -20,7 +20,7 @@
                 } @else {
                   <p class="text-body-secondary small mb-3">{{ example.label }}</p>
                 }
-                <pre class="bg-body-tertiary border rounded p-3 mb-0 small flex-grow-1"><code>{{ example.code }}</code></pre>
+                <pre class="demo-code bg-body-tertiary border rounded mb-0 small flex-grow-1"><code [highlightAuto]="example.code" lineNumbers></code></pre>
               </div>
             </div>
           </div>

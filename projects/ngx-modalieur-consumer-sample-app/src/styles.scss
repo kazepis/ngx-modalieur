@@ -1,1 +1,29 @@
-/* You can add global styles to this file, and also import other style files */
+/* Highlight.js code blocks in demo cards */
+pre.demo-code {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+
+  code.hljs {
+    display: block;
+    padding: 0.75rem 0;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    background: transparent;
+  }
+
+  /* Line-number gutter */
+  .hljs-ln-numbers {
+    user-select: none;
+    text-align: right;
+    color: var(--bs-secondary-color);
+    border-right: 1px solid var(--bs-border-color);
+    padding-right: 0.75rem !important;
+    padding-left: 0.75rem !important;
+    vertical-align: top;
+  }
+
+  .hljs-ln-code {
+    padding-left: 0.75rem !important;
+  }
+}

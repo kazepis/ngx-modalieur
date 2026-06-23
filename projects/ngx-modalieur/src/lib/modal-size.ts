@@ -1,1 +1,1 @@
-export type ModalSize = 'sm' | 'lg' | 'xl' | 'fullscreen';
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullscreen';
