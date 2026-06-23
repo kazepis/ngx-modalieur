@@ -5,5 +5,5 @@ import { provideModalieur } from '@kazepis/ngx-modalieur';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes), provideModalieur()]
+  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes), provideModalieur({ size: 'lg' })]
 };
