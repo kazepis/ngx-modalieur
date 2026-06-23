@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ModalContent } from '../../modal-content';
 import { MODAL_DATA } from '../../modal-data.token';
 import { ModalResult } from '../../modal-result.enum';
+import { describeMessageBoxButton } from './button-descriptors';
 import { MESSAGE_BOX_BUTTON_SETS } from './button-sets';
 import { MessageBoxButton } from './message-box-button';
 import { MessageBoxButtons } from './message-box-buttons.enum';
@@ -11,7 +12,7 @@ import { MessageBoxOptions } from './message-box-options';
 /**
  * A Bootstrap-styled message box. Use it two ways:
  *
- * 1. Config-driven — open it directly with `{ data: { title, message, buttons } }`.
+ * 1. Config-driven — `modalieur.messageBox({ title, message, buttons })`.
  * 2. Content projection — place `<mdlr-message-box>` in your own component and
  *    project `[mbHeader]`, `[mbBody]`, `[mbFooter]`.
  */
@@ -22,11 +23,11 @@ import { MessageBoxOptions } from './message-box-options';
   template: `
     <div class="modal-header">
       <ng-content select="[mbHeader]">
-        <h5 class="modal-title">{{ title }}</h5>
+        <h5 class="modal-title" [attr.id]="titleId">{{ title }}</h5>
         <button type="button" class="btn-close" aria-label="Close" (click)="close(Result.Cancel)"></button>
       </ng-content>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" [attr.id]="bodyId">
       <ng-content select="[mbBody]">{{ message }}</ng-content>
     </div>
     <div class="modal-footer">
@@ -42,6 +43,8 @@ import { MessageBoxOptions } from './message-box-options';
 })
 export class MessageBoxDialog extends ModalContent {
   protected readonly Result = ModalResult;
+  protected readonly titleId = 'mdlr-message-box-title';
+  protected readonly bodyId = 'mdlr-message-box-body';
 
   private readonly options = inject<MessageBoxOptions | null>(MODAL_DATA, { optional: true }) ?? {};
 
@@ -54,28 +57,6 @@ export class MessageBoxDialog extends ModalContent {
   }
 
   protected get buttons(): MessageBoxButton[] {
-    return MESSAGE_BOX_BUTTON_SETS[this.options.buttons ?? MessageBoxButtons.OK].map(b => this.describeButton(b));
-  }
-
-  private describeButton(result: ModalResult): MessageBoxButton {
-    switch (result) {
-      case ModalResult.Cancel:
-        return { result, label: 'Cancel', cssClass: 'btn-secondary' };
-      case ModalResult.No:
-        return { result, label: 'No', cssClass: 'btn-secondary' };
-      case ModalResult.Abort:
-        return { result, label: 'Abort', cssClass: 'btn-danger' };
-      case ModalResult.Retry:
-        return { result, label: 'Retry', cssClass: 'btn-primary' };
-      case ModalResult.Ignore:
-        return { result, label: 'Ignore', cssClass: 'btn-secondary' };
-      case ModalResult.Yes:
-        return { result, label: 'Yes', cssClass: 'btn-primary' };
-      case ModalResult.Continue:
-        return { result, label: 'Continue', cssClass: 'btn-primary' };
-      case ModalResult.Ok:
-      default:
-        return { result, label: 'OK', cssClass: 'btn-primary' };
-    }
+    return MESSAGE_BOX_BUTTON_SETS[this.options.buttons ?? MessageBoxButtons.OK].map(describeMessageBoxButton);
   }
 }

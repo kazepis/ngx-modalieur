@@ -76,21 +76,38 @@ this.modalieur
       id: 'until',
       label: 'Auto-close (showUntil)',
       btnClass: 'btn-outline-primary',
-      code: `// Closes when the observable emits anything.
+      code: `// Closes on the FIRST emission — falsy values count too.
 this.modalieur
-  .showUntil(WaitingModalComponent, timer(2000))
-  .subscribe((outcome) => { /* ... */ });`,
+  .showUntil(WaitingModalComponent, timer(4000).pipe(map(() => false)))
+  .subscribe((outcome) => { /* closed after 4s, even though the value is false */ });`,
       run: () => this.openWaiting()
     },
     {
       id: 'condition',
       label: 'Auto-close on condition (showUntilCondition)',
       btnClass: 'btn-outline-primary',
-      code: `// Closes on the first TRUTHY emission.
+      code: `// Ignores falsy emissions; closes on the first truthy one.
+const ready$ = concat(
+  timer(1000).pipe(map(() => false)), // ignored
+  timer(1500).pipe(map(() => true)),  // closes here
+);
 this.modalieur
   .showUntilCondition(WaitingModalComponent, ready$)
-  .subscribe((outcome) => { /* ... */ });`,
+  .subscribe((outcome) => { /* closed when ready$ emits true */ });`,
       run: () => this.openConditional()
+    },
+    {
+      id: 'confirm-shorthand',
+      label: 'confirm() / alert() shorthand',
+      btnClass: 'btn-outline-dark',
+      code: `// Emits ModalResult directly — no MessageBoxDialog import needed.
+this.modalieur.confirm('Delete item?', 'This cannot be undone.')
+  .subscribe((result) => {
+    if (result === ModalResult.Yes) { /* ... */ }
+  });
+
+this.modalieur.alert('Saved', 'Your changes were saved.').subscribe();`,
+      run: () => this.openConfirmShorthand()
     },
     {
       id: 'data',
@@ -253,27 +270,38 @@ this.modalieur.show(CustomMessageBoxComponent).subscribe((o) => { /* ... */ });`
   }
 
   protected openWaiting(): void {
+    // Falsy emission still closes — showUntil does not filter.
     this.modalieur
-      .showUntil(WaitingModalComponent, timer(2000), {
+      .showUntil(WaitingModalComponent, timer(4000).pipe(map(() => false)), {
         data: {
-          title: 'Auto-close',
-          message: 'This modal closes when the observable emits anything.'
+          title: 'Auto-close (showUntil)',
+          message: 'Closes in 4 seconds — even though the emitted value is false.'
         }
       })
       .subscribe(outcome => this.report(outcome));
   }
 
   protected openConditional(): void {
-    // Emits a falsy value first (ignored), then a truthy value that closes the modal.
+    // Emits false first (ignored), then true (closes the modal).
     const condition$ = concat(timer(1000).pipe(map(() => false)), timer(1500).pipe(map(() => true)));
     this.modalieur
       .showUntilCondition(WaitingModalComponent, condition$, {
         data: {
-          title: 'Auto-close',
-          message: 'This modal closes when the condition emits true.'
+          title: 'Auto-close (showUntilCondition)',
+          message: 'Ignores false; closes when condition$ emits true (~2.5s).'
         }
       })
       .subscribe(outcome => this.report(outcome));
+  }
+
+  protected openConfirmShorthand(): void {
+    this.modalieur.confirm('Delete item?', 'This cannot be undone.').subscribe(result => {
+      this.lastOutcome.set(`confirm(): ${ModalResult[result]}`);
+
+      if (result === ModalResult.Yes) {
+        this.modalieur.alert('Saved', 'Your changes were saved.').subscribe();
+      }
+    });
   }
 
   protected openNamePrompt(): void {

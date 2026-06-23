@@ -27,4 +27,13 @@ export interface ModalConfig<TDataIn = unknown> {
    * Default: `false`.
    */
   unstyled?: boolean;
+
+  /** Accessible label for the dialog (maps to CDK `ariaLabel`). */
+  ariaLabel?: string | null;
+
+  /** ID of the element that labels the dialog (maps to CDK `ariaLabelledBy`). */
+  ariaLabelledBy?: string | null;
+
+  /** ID of the element that describes the dialog (maps to CDK `ariaDescribedBy`). */
+  ariaDescribedBy?: string | null;
 }

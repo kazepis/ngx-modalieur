@@ -2,7 +2,7 @@ import { CdkDialogContainer } from '@angular/cdk/dialog';
 import { CdkPortalOutlet } from '@angular/cdk/portal';
 import { ChangeDetectionStrategy, Component, inject, ViewEncapsulation } from '@angular/core';
 
-import { MODALIEUR_DEFAULT_CONFIG } from '../../provide-modalieur';
+import { MODALIEUR_CONFIG } from '../../provide-modalieur';
 
 /**
  * Default dialog container that wraps the projected modal content in Bootstrap
@@ -40,5 +40,5 @@ import { MODALIEUR_DEFAULT_CONFIG } from '../../provide-modalieur';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BootstrapDialogContainer extends CdkDialogContainer {
-  protected readonly options = inject(MODALIEUR_DEFAULT_CONFIG, { optional: true }) ?? {};
+  protected readonly options = inject(MODALIEUR_CONFIG, { optional: true }) ?? {};
 }

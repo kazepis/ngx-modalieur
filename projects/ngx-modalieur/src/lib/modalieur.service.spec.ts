@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { ModalOutcome } from './modal-outcome';
 import { ModalResult } from './modal-result.enum';
 import { ModalieurService } from './modalieur.service';
+import { MessageBoxButtons } from './components/message-box/message-box-buttons.enum';
 
 @Component({ standalone: true, template: '' })
 class DummyModal {}
@@ -25,6 +26,7 @@ class FakeDialogRef {
 class FakeDialog {
   ref = new FakeDialogRef();
   open(): FakeDialogRef {
+    this.ref = new FakeDialogRef();
     return this.ref;
   }
 }
@@ -59,6 +61,16 @@ describe('ModalieurService', () => {
     expect(received).toEqual([{ result: ModalResult.Cancel }]);
   });
 
+  it('showUntil closes on the first emission even when the value is falsy', () => {
+    const until = new Subject<boolean>();
+    const received: ModalOutcome[] = [];
+    service.showUntil(DummyModal, until).subscribe(o => received.push(o));
+
+    until.next(false);
+    expect(dialog.ref.closeArgs.length).toBe(1);
+    expect(received).toEqual([{ result: ModalResult.Undefined, data: undefined }]);
+  });
+
   it('showUntilCondition closes only on a truthy emission', () => {
     const condition = new Subject<boolean>();
     const received: ModalOutcome[] = [];
@@ -81,5 +93,21 @@ describe('ModalieurService', () => {
 
     ref.close(ModalResult.Cancel);
     expect(received).toEqual([{ result: ModalResult.Cancel, data: undefined }]);
+  });
+
+  it('messageBox emits only the ModalResult', () => {
+    const received: ModalResult[] = [];
+    service.messageBox({ title: 'Delete?', message: 'Sure?', buttons: MessageBoxButtons.YesNo }).subscribe(r => received.push(r));
+
+    dialog.ref.close({ result: ModalResult.Yes });
+    expect(received).toEqual([ModalResult.Yes]);
+  });
+
+  it('confirm and alert delegate to messageBox button sets', () => {
+    service.confirm('Confirm', 'Proceed?').subscribe();
+    dialog.ref.close({ result: ModalResult.Yes });
+
+    service.alert('Notice', 'Done.').subscribe();
+    dialog.ref.close({ result: ModalResult.Ok });
   });
 });
