@@ -23,6 +23,18 @@ export abstract class ModalContent<TDataOut = unknown> {
     this.close(ModalResult.Cancel, data);
   }
 
+  protected abort(data?: TDataOut): void {
+    this.close(ModalResult.Abort, data);
+  }
+
+  protected retry(data?: TDataOut): void {
+    this.close(ModalResult.Retry, data);
+  }
+
+  protected ignore(data?: TDataOut): void {
+    this.close(ModalResult.Ignore, data);
+  }
+
   protected respondWithData(data: TDataOut): void {
     this.close(ModalResult.Data, data);
   }

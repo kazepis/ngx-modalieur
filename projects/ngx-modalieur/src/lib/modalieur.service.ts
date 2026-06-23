@@ -2,7 +2,7 @@ import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
 import { inject, Injectable, signal, Type } from '@angular/core';
 import { filter, map, Observable, take, takeUntil } from 'rxjs';
 
-import { MessageBoxDialog } from './components/message-box/message-box.component';
+import { MessageBoxDialog, MESSAGE_BOX_BODY_ID, MESSAGE_BOX_TITLE_ID } from './components/message-box/message-box.dialog';
 import { MessageBoxOptions } from './components/message-box/message-box-options';
 import { MessageBoxButtons } from './components/message-box/message-box-buttons.enum';
 import { BootstrapDialogContainer } from './components/bootstrap-modal/bootstrap-dialog-container';
@@ -13,6 +13,7 @@ import { ModalRef } from './modal-ref';
 import { ModalResult } from './modal-result.enum';
 import { ModalResultData } from './modal-result-data';
 import { MODALIEUR_CONFIG } from './provide-modalieur';
+import { MODALIEUR_DEFAULTS } from './modal-defaults';
 
 /**
  * Opens Bootstrap-styled modals on top of Angular CDK `Dialog` and exposes the
@@ -22,7 +23,7 @@ import { MODALIEUR_CONFIG } from './provide-modalieur';
 @Injectable({ providedIn: 'root' })
 export class ModalieurService {
   private readonly cdkDialog = inject(Dialog);
-  private readonly modalieurConfig = signal<ModalConfig>(inject(MODALIEUR_CONFIG, { optional: true }) ?? {});
+  private readonly modalieurConfig = signal<ModalConfig>(inject(MODALIEUR_CONFIG, { optional: true }) ?? MODALIEUR_DEFAULTS);
 
   /**
    * Opens a modal and emits its outcome when it closes. `TIn` is the input data
@@ -39,6 +40,8 @@ export class ModalieurService {
    *
    * Use this for timers, one-shot events, or "close when anything happens".
    * For "close when ready", use {@link showUntilCondition} instead.
+   *
+   * Closes with {@link ModalResult.AutoClose}.
    */
   showUntil<C, TIn = unknown>(
     component: Type<C>,
@@ -46,7 +49,7 @@ export class ModalieurService {
     config?: ModalConfig<TIn>
   ): Observable<ModalOutcome<ModalResultData<C>>> {
     const ref = this.showAndReturnRef<C, TIn>(component, config);
-    until$.pipe(take(1), takeUntil(ref.closed$)).subscribe(() => ref.close());
+    until$.pipe(take(1), takeUntil(ref.closed$)).subscribe(() => ref.close(ModalResult.AutoClose));
     return ref.closed$;
   }
 
@@ -57,6 +60,8 @@ export class ModalieurService {
    *
    * Use this for async readiness signals (e.g. `saveComplete$`, `loaded$`).
    * For "close on any emission", use {@link showUntil} instead.
+   *
+   * Closes with {@link ModalResult.AutoClose}.
    */
   showUntilCondition<C, TIn = unknown>(
     component: Type<C>,
@@ -64,7 +69,7 @@ export class ModalieurService {
     config?: ModalConfig<TIn>
   ): Observable<ModalOutcome<ModalResultData<C>>> {
     const ref = this.showAndReturnRef<C, TIn>(component, config);
-    condition$.pipe(filter(Boolean), take(1), takeUntil(ref.closed$)).subscribe(() => ref.close());
+    condition$.pipe(filter(Boolean), take(1), takeUntil(ref.closed$)).subscribe(() => ref.close(ModalResult.AutoClose));
     return ref.closed$;
   }
 
@@ -86,7 +91,9 @@ export class ModalieurService {
     options: MessageBoxOptions,
     config?: Omit<ModalConfig<MessageBoxOptions>, 'data'>
   ): Observable<ModalResult> {
-    return this.show(MessageBoxDialog, { ...config, data: options }).pipe(map(outcome => outcome.result));
+    return this.show(MessageBoxDialog, { ...this.withMessageBoxA11y(config), data: options }).pipe(
+      map(outcome => outcome.result)
+    );
   }
 
   /** Yes / No confirmation. Shorthand for `messageBox` with `MessageBoxButtons.YesNo`. */
@@ -126,5 +133,13 @@ export class ModalieurService {
     }
 
     return dialogConfig;
+  }
+
+  private withMessageBoxA11y<TIn>(config?: ModalConfig<TIn>): ModalConfig<TIn> {
+    return {
+      ...config,
+      ariaLabelledBy: config?.ariaLabelledBy ?? MESSAGE_BOX_TITLE_ID,
+      ariaDescribedBy: config?.ariaDescribedBy ?? MESSAGE_BOX_BODY_ID
+    };
   }
 }

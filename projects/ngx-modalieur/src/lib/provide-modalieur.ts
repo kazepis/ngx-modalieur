@@ -1,6 +1,7 @@
 import { EnvironmentProviders, InjectionToken, makeEnvironmentProviders } from '@angular/core';
 
 import { ModalConfig } from './modal-config';
+import { MODALIEUR_DEFAULTS } from './modal-defaults';
 
 /** App-wide default `ModalConfig`, merged with (and overridden by) per-call config. */
 export const MODALIEUR_CONFIG = new InjectionToken<ModalConfig>('ngx-modalieur.CONFIG');
@@ -18,13 +19,7 @@ export function provideModalieur(defaults?: ModalConfig): EnvironmentProviders {
   return makeEnvironmentProviders([
     {
       provide: MODALIEUR_CONFIG,
-      useValue: defaults ?? {
-        backdrop: true,
-        centered: true,
-        dismissible: true,
-        scrollable: false,
-        unstyled: false
-      }
+      useValue: defaults ?? MODALIEUR_DEFAULTS
     }
   ]);
 }

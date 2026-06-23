@@ -3,9 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalRef } from '../../modal-ref';
 import { ModalResult } from '../../modal-result.enum';
 import { MODAL_DATA } from '../../modal-data.token';
-import { MESSAGE_BOX_BUTTON_SETS } from './button-sets';
+import { MESSAGE_BOX_BUTTON_SETS } from './message-box-buttons.config';
 import { MessageBoxButtons } from './message-box-buttons.enum';
-import { MessageBoxDialog } from './message-box.component';
+import { MessageBoxDialog } from './message-box.dialog';
 
 class FakeModalRef {
   calls: ModalResult[] = [];

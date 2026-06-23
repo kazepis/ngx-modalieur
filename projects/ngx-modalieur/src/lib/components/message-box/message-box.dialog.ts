@@ -3,11 +3,16 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ModalContent } from '../../modal-content';
 import { MODAL_DATA } from '../../modal-data.token';
 import { ModalResult } from '../../modal-result.enum';
-import { describeMessageBoxButton } from './button-descriptors';
-import { MESSAGE_BOX_BUTTON_SETS } from './button-sets';
+import { describeMessageBoxButton, MESSAGE_BOX_BUTTON_SETS } from './message-box-buttons.config';
 import { MessageBoxButton } from './message-box-button';
 import { MessageBoxButtons } from './message-box-buttons.enum';
 import { MessageBoxOptions } from './message-box-options';
+
+/** DOM id for the config-driven message-box title (used with aria-labelledby). */
+export const MESSAGE_BOX_TITLE_ID = 'mdlr-message-box-title';
+
+/** DOM id for the config-driven message-box body (used with aria-describedby). */
+export const MESSAGE_BOX_BODY_ID = 'mdlr-message-box-body';
 
 /**
  * A Bootstrap-styled message box. Use it two ways:
@@ -43,8 +48,8 @@ import { MessageBoxOptions } from './message-box-options';
 })
 export class MessageBoxDialog extends ModalContent {
   protected readonly Result = ModalResult;
-  protected readonly titleId = 'mdlr-message-box-title';
-  protected readonly bodyId = 'mdlr-message-box-body';
+  protected readonly titleId = MESSAGE_BOX_TITLE_ID;
+  protected readonly bodyId = MESSAGE_BOX_BODY_ID;
 
   private readonly options = inject<MessageBoxOptions | null>(MODAL_DATA, { optional: true }) ?? {};
 

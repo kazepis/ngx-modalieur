@@ -7,5 +7,6 @@ export enum ModalResult {
   Cancel,
   Abort,
   Retry,
-  Ignore
+  Ignore,
+  AutoClose
 }

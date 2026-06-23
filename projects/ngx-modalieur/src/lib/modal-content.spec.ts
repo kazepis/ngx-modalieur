@@ -26,6 +26,15 @@ class TestModal extends ModalContent {
   callCancel(): void {
     this.cancel();
   }
+  callAbort(): void {
+    this.abort();
+  }
+  callRetry(): void {
+    this.retry();
+  }
+  callIgnore(): void {
+    this.ignore();
+  }
   callData(data: unknown): void {
     this.respondWithData(data);
   }
@@ -48,12 +57,18 @@ describe('ModalContent', () => {
     modal.callNo();
     modal.callOk();
     modal.callCancel();
+    modal.callAbort();
+    modal.callRetry();
+    modal.callIgnore();
 
     expect(ref.calls).toEqual([
       { result: ModalResult.Yes, data: undefined },
       { result: ModalResult.No, data: undefined },
       { result: ModalResult.Ok, data: undefined },
-      { result: ModalResult.Cancel, data: undefined }
+      { result: ModalResult.Cancel, data: undefined },
+      { result: ModalResult.Abort, data: undefined },
+      { result: ModalResult.Retry, data: undefined },
+      { result: ModalResult.Ignore, data: undefined }
     ]);
   });
 

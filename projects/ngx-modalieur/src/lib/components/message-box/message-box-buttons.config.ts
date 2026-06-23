@@ -1,5 +1,6 @@
 import { ModalResult } from '../../modal-result.enum';
 import { MessageBoxButton } from './message-box-button';
+import { MessageBoxButtons } from './message-box-buttons.enum';
 
 export interface MessageBoxButtonDescriptor {
   label: string;
@@ -15,6 +16,15 @@ export const MESSAGE_BOX_BUTTON: Partial<Record<ModalResult, MessageBoxButtonDes
   [ModalResult.Abort]: { label: 'Abort', cssClass: 'btn-danger' },
   [ModalResult.Retry]: { label: 'Retry', cssClass: 'btn-primary' },
   [ModalResult.Ignore]: { label: 'Ignore', cssClass: 'btn-secondary' }
+};
+
+export const MESSAGE_BOX_BUTTON_SETS: Record<MessageBoxButtons, ModalResult[]> = {
+  [MessageBoxButtons.OK]: [ModalResult.Ok],
+  [MessageBoxButtons.OKCancel]: [ModalResult.Ok, ModalResult.Cancel],
+  [MessageBoxButtons.AbortRetryIgnore]: [ModalResult.Abort, ModalResult.Retry, ModalResult.Ignore],
+  [MessageBoxButtons.YesNoCancel]: [ModalResult.Yes, ModalResult.No, ModalResult.Cancel],
+  [MessageBoxButtons.YesNo]: [ModalResult.Yes, ModalResult.No],
+  [MessageBoxButtons.RetryCancel]: [ModalResult.Retry, ModalResult.Cancel]
 };
 
 export function describeMessageBoxButton(result: ModalResult): MessageBoxButton {

@@ -68,7 +68,7 @@ describe('ModalieurService', () => {
 
     until.next(false);
     expect(dialog.ref.closeArgs.length).toBe(1);
-    expect(received).toEqual([{ result: ModalResult.Undefined, data: undefined }]);
+    expect(received).toEqual([{ result: ModalResult.AutoClose, data: undefined }]);
   });
 
   it('showUntilCondition closes only on a truthy emission', () => {
@@ -81,7 +81,7 @@ describe('ModalieurService', () => {
 
     condition.next(true);
     expect(dialog.ref.closeArgs.length).toBe(1);
-    expect(received).toEqual([{ result: ModalResult.Undefined, data: undefined }]);
+    expect(received).toEqual([{ result: ModalResult.AutoClose, data: undefined }]);
   });
 
   it('showAndReturnRef exposes the id and closes programmatically', () => {
