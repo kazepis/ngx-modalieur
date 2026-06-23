@@ -21,7 +21,7 @@ import { MODALIEUR_CONFIG } from '../../provide-modalieur';
     <div class="modal" tabindex="-1">
       <div
         class="modal-dialog"
-        [class.modal-dialog-centered]="options.centered !== false"
+        [class.modal-dialog-centered]="options.centered !== false && !options.scrollable"
         [class.modal-dialog-scrollable]="!!options.scrollable"
         [class.modal-sm]="options.size === 'sm'"
         [class.modal-lg]="options.size === 'lg'"

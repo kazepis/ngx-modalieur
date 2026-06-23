@@ -120,9 +120,6 @@ export class ModalieurService {
     };
 
     if (!config.unstyled) {
-      // Forward the resolved (merged) config to the container's injector so it
-      // can apply per-modal size / centered / scrollable, falling back to the
-      // app-wide MODALIEUR_CONFIG only when nothing is passed.
       dialogConfig.container = {
         type: BootstrapDialogContainer,
         providers: () => [{ provide: MODALIEUR_CONFIG, useValue: config }]

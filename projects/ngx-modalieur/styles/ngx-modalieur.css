@@ -24,6 +24,37 @@
   pointer-events: none;
 }
 
+/*
+ * Scrollable dialogs need two fixes in the CDK-overlay + ngx-modalieur context:
+ *
+ * 1. Bootstrap caps `.modal-content` with `max-height: 100%`, which only works
+ *    when ancestors have a definite height. CDK panes shrink-wrap content, so
+ *    that percentage collapses to `none`. Give `.modal-content` a definite
+ *    viewport-based cap instead.
+ *
+ * 2. `cdkPortalOutlet` renders the modal component's host element *inside*
+ *    `.modal-content`, so `.modal-header/.modal-body/.modal-footer` are no
+ *    longer direct flex children of `.modal-content` (Bootstrap's scrollable
+ *    layout assumes they are). Make that host a transparent flex column so the
+ *    header/footer stay fixed and `.modal-body` becomes the scroll area.
+ */
+.mdlr-modal-pane .modal-dialog-scrollable .modal-content {
+  max-height: calc(100vh - var(--bs-modal-margin, 0.5rem) * 2);
+}
+
+.mdlr-modal-pane .modal-dialog-scrollable .modal-content > * {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.mdlr-modal-pane .modal-dialog-scrollable .modal-body {
+  min-height: 0;
+  overflow-y: auto;
+}
+
 /* Comparable enter transition to Bootstrap's fade + slide-down. */
 .mdlr-modal-pane .modal-dialog {
   animation: mdlr-modal-enter 0.25s ease-out;
