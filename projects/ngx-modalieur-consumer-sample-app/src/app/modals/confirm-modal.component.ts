@@ -18,7 +18,7 @@ import { SampleData } from './sample-data';
       <button type="button" class="btn btn-secondary" (click)="no()">No</button>
       <button type="button" class="btn btn-primary" (click)="yes()">Yes</button>
     </div>
-  `,
+  `
 })
 export class ConfirmModalComponent extends ModalContent {
   protected readonly data = inject<SampleData>(MODAL_DATA);

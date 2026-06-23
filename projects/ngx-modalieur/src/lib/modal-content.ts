@@ -3,48 +3,31 @@ import { Directive, inject } from '@angular/core';
 import { ModalRef } from './modal-ref';
 import { ModalResult } from './modal-result.enum';
 
-/**
- * Extracts the result-data type a component declares by extending
- * `ModalContent<T>`. Falls back to `unknown` for components that don't.
- */
-export type ModalResultData<C> = C extends ModalContent<infer TData> ? TData : unknown;
-
-/**
- * Optional base class for modal components. Provides Windows-Forms-style
- * helpers that close the modal with a `ModalResult`. Components may instead
- * inject `ModalRef` directly.
- *
- * @example
- * ```ts
- * export class ConfirmLogoutComponent extends ModalContent {}
- * // template: <button (click)="yes()">Logout</button>
- * ```
- */
 @Directive()
-export abstract class ModalContent<TData = unknown> {
-  protected readonly modalRef = inject<ModalRef<TData>>(ModalRef);
+export abstract class ModalContent<TDataOut = unknown> {
+  protected readonly modalRef = inject<ModalRef<TDataOut>>(ModalRef);
 
-  protected yes(data?: TData): void {
+  protected yes(data?: TDataOut): void {
     this.close(ModalResult.Yes, data);
   }
 
-  protected no(data?: TData): void {
+  protected no(data?: TDataOut): void {
     this.close(ModalResult.No, data);
   }
 
-  protected ok(data?: TData): void {
+  protected ok(data?: TDataOut): void {
     this.close(ModalResult.Ok, data);
   }
 
-  protected cancel(data?: TData): void {
+  protected cancel(data?: TDataOut): void {
     this.close(ModalResult.Cancel, data);
   }
 
-  protected respondWithData(data: TData): void {
+  protected respondWithData(data: TDataOut): void {
     this.close(ModalResult.Data, data);
   }
 
-  protected close(result: ModalResult = ModalResult.Undefined, data?: TData): void {
+  protected close(result: ModalResult = ModalResult.Undefined, data?: TDataOut): void {
     this.modalRef.close(result, data);
   }
 }

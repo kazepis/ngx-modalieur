@@ -15,7 +15,7 @@ import { SampleData } from './sample-data';
       <p class="mb-0">{{ data.title }}</p>
       <p class="mb-0">{{ data.message }}</p>
     </div>
-  `,
+  `
 })
 export class WaitingModalComponent extends ModalContent {
   protected readonly data = inject<SampleData>(MODAL_DATA);

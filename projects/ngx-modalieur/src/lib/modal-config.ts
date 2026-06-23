@@ -1,14 +1,8 @@
-/** Bootstrap modal size modifier. The default (omitted) size is medium. */
-export type ModalSize = 'sm' | 'lg' | 'xl' | 'fullscreen';
+import { ModalSize } from './modal-size';
 
-/**
- * Options for opening a modal. All fields are optional; sensible defaults are
- * applied by `ModalieurService` (and can be overridden app-wide via
- * `provideModalieur`).
- */
-export interface ModalConfig<TData = unknown> {
+export interface ModalConfig<TDataIn = unknown> {
   /** Data injected into the modal component via the `MODAL_DATA` token. */
-  data?: TData;
+  data?: TDataIn;
 
   /** Bootstrap dialog size. Omit for the default (medium) size. */
   size?: ModalSize;

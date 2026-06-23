@@ -15,12 +15,7 @@ import { SampleData } from './sample-data';
     <div class="fs-popup">
       <button type="button" class="fs-close" aria-label="Close" (click)="cancel()">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-          <path
-            d="M6 6 L18 18 M18 6 L6 18"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          />
+          <path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </button>
       <div class="fs-content">
@@ -99,8 +94,8 @@ import { SampleData } from './sample-data';
       .fs-close svg {
         display: block;
       }
-    `,
-  ],
+    `
+  ]
 })
 export class FullscreenModalComponent extends ModalContent {
   protected readonly data = inject<SampleData>(MODAL_DATA);

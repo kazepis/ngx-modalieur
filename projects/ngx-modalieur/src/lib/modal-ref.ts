@@ -4,36 +4,17 @@ import { map, Observable } from 'rxjs';
 import { ModalOutcome } from './modal-outcome';
 import { ModalResult } from './modal-result.enum';
 
-/**
- * Handle to an open modal. Wraps the CDK `DialogRef` so consumers never depend
- * on `@angular/cdk` directly.
- */
-export class ModalRef<TData = unknown> {
-  /** Unique id of the open modal. */
+export class ModalRef<TDataOut = unknown> {
   readonly id: string;
 
-  /**
-   * Emits exactly once when the modal closes. A user dismissal (backdrop click
-   * or Escape) resolves to `{ result: ModalResult.Cancel }`, consistent with a
-   * close/cancel button. Programmatic `close()` without a result stays
-   * `ModalResult.Undefined`.
-   */
-  readonly closed$: Observable<ModalOutcome<TData>>;
+  readonly closed$: Observable<ModalOutcome<TDataOut>>;
 
-  // The component-type generic is intentionally `any`: it only affects CDK's
-  // internal config typing and would otherwise leak variance noise here.
-  constructor(private readonly dialogRef: DialogRef<ModalOutcome<TData>, any>) {
+  constructor(private readonly dialogRef: DialogRef<ModalOutcome<TDataOut>, any>) {
     this.id = dialogRef.id;
-    this.closed$ = dialogRef.closed.pipe(
-      map(outcome => outcome ?? { result: ModalResult.Cancel })
-    );
+    this.closed$ = dialogRef.closed.pipe(map(outcome => outcome ?? { result: ModalResult.Cancel }));
   }
 
-  /**
-   * Closes the modal programmatically. Calling without arguments closes with
-   * `ModalResult.Undefined` (the equivalent of the old `ref.hide()`).
-   */
-  close(result: ModalResult = ModalResult.Undefined, data?: TData): void {
+  close(result: ModalResult = ModalResult.Undefined, data?: TDataOut): void {
     this.dialogRef.close({ result, data });
   }
 }

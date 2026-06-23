@@ -2,7 +2,14 @@
   "name": "@kazepis/ngx-modalieur",
   "version": "0.0.1",
   "description": "Reactive, Bootstrap 5.3-styled modals for Angular built on Angular CDK Dialog.",
-  "keywords": ["angular", "modal", "dialog", "bootstrap", "cdk", "reactive"],
+  "keywords": [
+    "angular",
+    "modal",
+    "dialog",
+    "bootstrap",
+    "cdk",
+    "reactive"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

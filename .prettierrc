@@ -1,6 +1,10 @@
 {
-  "printWidth": 100,
+  "printWidth": 125,
+  "tabWidth": 2,
   "singleQuote": true,
+  "useTabs": false,
+  "arrowParens": "avoid",
+  "trailingComma": "none",
   "overrides": [
     {
       "files": "*.html",

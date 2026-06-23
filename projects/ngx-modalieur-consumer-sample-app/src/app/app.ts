@@ -1,11 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import {
-  MessageBoxButtons,
-  MessageBoxDialog,
-  ModalieurService,
-  ModalOutcome,
-  ModalResult,
-} from '@kazepis/ngx-modalieur';
+import { MessageBoxButtons, MessageBoxDialog, ModalieurService, ModalOutcome, ModalResult } from '@kazepis/ngx-modalieur';
 import { concat, map, timer } from 'rxjs';
 
 import { ConfirmModalComponent } from './modals/confirm-modal.component';
@@ -26,7 +20,7 @@ interface DemoExample {
 @Component({
   selector: 'app-root',
   standalone: true,
-  templateUrl: './app.html',
+  templateUrl: './app.html'
 })
 export class App {
   private readonly modalieur = inject(ModalieurService);
@@ -47,7 +41,7 @@ export class App {
       // ...
     }
   });`,
-      run: () => this.openConfirm(),
+      run: () => this.openConfirm()
     },
     {
       id: 'large',
@@ -56,7 +50,7 @@ export class App {
       code: `this.modalieur
   .show(ConfirmModalComponent, { size: 'lg', data })
   .subscribe((outcome) => { /* ... */ });`,
-      run: () => this.openLarge(),
+      run: () => this.openLarge()
     },
     {
       id: 'fullscreen',
@@ -66,7 +60,7 @@ export class App {
 this.modalieur
   .show(FullscreenModalComponent, { unstyled: true, data })
   .subscribe((outcome) => { /* ... */ });`,
-      run: () => this.openFullscreen(),
+      run: () => this.openFullscreen()
     },
     {
       id: 'static',
@@ -76,7 +70,7 @@ this.modalieur
 this.modalieur
   .show(ConfirmModalComponent, { dismissible: false, data })
   .subscribe((outcome) => { /* ... */ });`,
-      run: () => this.openStatic(),
+      run: () => this.openStatic()
     },
     {
       id: 'until',
@@ -86,7 +80,7 @@ this.modalieur
 this.modalieur
   .showUntil(WaitingModalComponent, timer(2000))
   .subscribe((outcome) => { /* ... */ });`,
-      run: () => this.openWaiting(),
+      run: () => this.openWaiting()
     },
     {
       id: 'condition',
@@ -96,7 +90,7 @@ this.modalieur
 this.modalieur
   .showUntilCondition(WaitingModalComponent, ready$)
   .subscribe((outcome) => { /* ... */ });`,
-      run: () => this.openConditional(),
+      run: () => this.openConditional()
     },
     {
       id: 'data',
@@ -108,7 +102,7 @@ this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => {
     console.log(outcome.data?.name);
   }
 });`,
-      run: () => this.openNamePrompt(),
+      run: () => this.openNamePrompt()
     },
     {
       id: 'ref',
@@ -121,7 +115,7 @@ const ref = this.modalieur.showAndReturnRef(WaitingModalComponent, {
 ref.closed$.subscribe((outcome) => { /* ... */ });
 
 save().then((id) => ref.close(ModalResult.Ok, { savedId: id }));`,
-      run: () => this.openProgress(),
+      run: () => this.openProgress()
     },
     {
       id: 'unstyled',
@@ -131,7 +125,7 @@ save().then((id) => ref.close(ModalResult.Ok, { savedId: id }));`,
 this.modalieur
   .show(PlainModalComponent, { unstyled: true })
   .subscribe((outcome) => { /* ... */ });`,
-      run: () => this.openUnstyled(),
+      run: () => this.openUnstyled()
     },
     {
       id: 'mb-ok',
@@ -142,7 +136,7 @@ this.modalieur
     data: { title: 'OK', message: '…', buttons: MessageBoxButtons.OK },
   })
   .subscribe((o) => { /* o.result === ModalResult.Ok */ });`,
-      run: () => this.openMessageBox(MessageBoxButtons.OK, 'OK', 'A single OK button.'),
+      run: () => this.openMessageBox(MessageBoxButtons.OK, 'OK', 'A single OK button.')
     },
     {
       id: 'mb-okcancel',
@@ -153,7 +147,7 @@ this.modalieur
     data: { title: 'Save?', message: '…', buttons: MessageBoxButtons.OKCancel },
   })
   .subscribe((o) => { /* Ok | Cancel */ });`,
-      run: () => this.openMessageBox(MessageBoxButtons.OKCancel, 'Save changes?', 'Proceed with saving?'),
+      run: () => this.openMessageBox(MessageBoxButtons.OKCancel, 'Save changes?', 'Proceed with saving?')
     },
     {
       id: 'mb-abortretryignore',
@@ -164,8 +158,7 @@ this.modalieur
     data: { buttons: MessageBoxButtons.AbortRetryIgnore, /* ... */ },
   })
   .subscribe((o) => { /* Abort | Retry | Ignore */ });`,
-      run: () =>
-        this.openMessageBox(MessageBoxButtons.AbortRetryIgnore, 'Operation failed', 'What would you like to do?'),
+      run: () => this.openMessageBox(MessageBoxButtons.AbortRetryIgnore, 'Operation failed', 'What would you like to do?')
     },
     {
       id: 'mb-yesnocancel',
@@ -176,7 +169,7 @@ this.modalieur
     data: { buttons: MessageBoxButtons.YesNoCancel, /* ... */ },
   })
   .subscribe((o) => { /* Yes | No | Cancel */ });`,
-      run: () => this.openMessageBox(MessageBoxButtons.YesNoCancel, 'Save before closing?', 'You have unsaved changes.'),
+      run: () => this.openMessageBox(MessageBoxButtons.YesNoCancel, 'Save before closing?', 'You have unsaved changes.')
     },
     {
       id: 'mb-yesno',
@@ -187,7 +180,7 @@ this.modalieur
     data: { buttons: MessageBoxButtons.YesNo, /* ... */ },
   })
   .subscribe((o) => { /* Yes | No */ });`,
-      run: () => this.openMessageBox(MessageBoxButtons.YesNo, 'Delete item?', 'This cannot be undone.'),
+      run: () => this.openMessageBox(MessageBoxButtons.YesNo, 'Delete item?', 'This cannot be undone.')
     },
     {
       id: 'mb-retrycancel',
@@ -198,19 +191,7 @@ this.modalieur
     data: { buttons: MessageBoxButtons.RetryCancel, /* ... */ },
   })
   .subscribe((o) => { /* Retry | Cancel */ });`,
-      run: () => this.openMessageBox(MessageBoxButtons.RetryCancel, 'Connection lost', 'Could not reach the server.'),
-    },
-    {
-      id: 'mb-canceltrycontinue',
-      label: 'MessageBox: Cancel / Try Again / Continue',
-      btnClass: 'btn-outline-dark',
-      code: `this.modalieur
-  .show(MessageBoxDialog, {
-    data: { buttons: MessageBoxButtons.CancelTryContinue, /* ... */ },
-  })
-  .subscribe((o) => { /* Cancel | TryAgain | Continue */ });`,
-      run: () =>
-        this.openMessageBox(MessageBoxButtons.CancelTryContinue, 'File in use', 'The file could not be written.'),
+      run: () => this.openMessageBox(MessageBoxButtons.RetryCancel, 'Connection lost', 'Could not reach the server.')
     },
     {
       id: 'mb-projection',
@@ -228,25 +209,28 @@ this.modalieur
 
 // Then open your wrapper component:
 this.modalieur.show(CustomMessageBoxComponent).subscribe((o) => { /* ... */ });`,
-      run: () => this.openCustomMessageBox(),
-    },
+      run: () => this.openCustomMessageBox()
+    }
   ];
 
   protected openConfirm(): void {
     this.modalieur
       .show(ConfirmModalComponent, {
-        data: { title: 'Confirm', message: 'Do you want to continue?' },
+        data: { title: 'Confirm', message: 'Do you want to continue?' }
       })
-      .subscribe((outcome) => this.report(outcome));
+      .subscribe(outcome => this.report(outcome));
   }
 
   protected openLarge(): void {
     this.modalieur
       .show(ConfirmModalComponent, {
         size: 'lg',
-        data: { title: 'Large modal', message: 'This dialog uses the .modal-lg size.' },
+        data: {
+          title: 'Large modal',
+          message: 'This dialog uses the .modal-lg size.'
+        }
       })
-      .subscribe((outcome) => this.report(outcome));
+      .subscribe(outcome => this.report(outcome));
   }
 
   protected openFullscreen(): void {
@@ -254,18 +238,18 @@ this.modalieur.show(CustomMessageBoxComponent).subscribe((o) => { /* ... */ });`
     this.modalieur
       .show(FullscreenModalComponent, {
         unstyled: true,
-        data: { title: 'Fullscreen popup', message: 'A custom full-screen modal, centered.' },
+        data: { title: 'Fullscreen popup', message: 'A custom full-screen modal, centered.' }
       })
-      .subscribe((outcome) => this.report(outcome));
+      .subscribe(outcome => this.report(outcome));
   }
 
   protected openStatic(): void {
     this.modalieur
       .show(ConfirmModalComponent, {
         dismissible: false,
-        data: { title: 'Non-dismissible', message: 'Backdrop and Escape will not close this.' },
+        data: { title: 'Non-dismissible', message: 'Backdrop and Escape will not close this.' }
       })
-      .subscribe((outcome) => this.report(outcome));
+      .subscribe(outcome => this.report(outcome));
   }
 
   protected openWaiting(): void {
@@ -273,31 +257,28 @@ this.modalieur.show(CustomMessageBoxComponent).subscribe((o) => { /* ... */ });`
       .showUntil(WaitingModalComponent, timer(2000), {
         data: {
           title: 'Auto-close',
-          message: 'This modal closes when the observable emits anything.',
-        },
+          message: 'This modal closes when the observable emits anything.'
+        }
       })
-      .subscribe((outcome) => this.report(outcome));
+      .subscribe(outcome => this.report(outcome));
   }
 
   protected openConditional(): void {
     // Emits a falsy value first (ignored), then a truthy value that closes the modal.
-    const condition$ = concat(
-      timer(1000).pipe(map(() => false)),
-      timer(1500).pipe(map(() => true)),
-    );
+    const condition$ = concat(timer(1000).pipe(map(() => false)), timer(1500).pipe(map(() => true)));
     this.modalieur
       .showUntilCondition(WaitingModalComponent, condition$, {
         data: {
           title: 'Auto-close',
-          message: 'This modal closes when the condition emits true.',
-        },
+          message: 'This modal closes when the condition emits true.'
+        }
       })
-      .subscribe((outcome) => this.report(outcome));
+      .subscribe(outcome => this.report(outcome));
   }
 
   protected openNamePrompt(): void {
     // The result-data type (NamePromptResult) is inferred from the component.
-    this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => {
+    this.modalieur.show(NamePromptModalComponent).subscribe(outcome => {
       if (outcome.result === ModalResult.Data) {
         console.log(outcome.data?.name);
       }
@@ -312,34 +293,28 @@ this.modalieur.show(CustomMessageBoxComponent).subscribe((o) => { /* ... */ });`
       dismissible: false,
       data: {
         title: 'Saving…',
-        message: 'This modal closes when the save completes.',
-      },
+        message: 'This modal closes when the save completes.'
+      }
     });
-    ref.closed$.subscribe((outcome) => this.report(outcome));
+    ref.closed$.subscribe(outcome => this.report(outcome));
     setTimeout(() => ref.close(ModalResult.Ok, { savedId: 42 }), 2000);
   }
 
   protected openUnstyled(): void {
     // No Bootstrap: the component brings its own styles.
-    this.modalieur
-      .show(PlainModalComponent, { unstyled: true })
-      .subscribe((outcome) => this.report(outcome));
+    this.modalieur.show(PlainModalComponent, { unstyled: true }).subscribe(outcome => this.report(outcome));
   }
 
   protected openMessageBox(buttons: MessageBoxButtons, title: string, message: string): void {
-    this.modalieur
-      .show(MessageBoxDialog, { data: { title, message, buttons } })
-      .subscribe((outcome) => this.report(outcome));
+    this.modalieur.show(MessageBoxDialog, { data: { title, message, buttons } }).subscribe(outcome => this.report(outcome));
   }
 
   protected openCustomMessageBox(): void {
-    this.modalieur.show(CustomMessageBoxComponent).subscribe((outcome) => this.report(outcome));
+    this.modalieur.show(CustomMessageBoxComponent).subscribe(outcome => this.report(outcome));
   }
 
   private report(outcome: ModalOutcome): void {
     const label = ModalResult[outcome.result];
-    this.lastOutcome.set(
-      outcome.data ? `ModalResult: ${label} - Data: ${JSON.stringify(outcome.data)}` : label,
-    );
+    this.lastOutcome.set(outcome.data ? `ModalResult: ${label} - Data: ${JSON.stringify(outcome.data)}` : label);
   }
 }

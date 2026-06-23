@@ -69,25 +69,23 @@ import { ModalieurService, ModalResult } from '@kazepis/ngx-modalieur';
 
 const modal = inject(ModalieurService);
 
-modal
-  .show(ConfirmModalComponent, { data: { title: 'Confirm', message: 'Are you sure?' } })
-  .subscribe(outcome => {
-    if (outcome.result === ModalResult.Yes) {
-      // ...
-    }
-  });
+modal.show(ConfirmModalComponent, { data: { title: 'Confirm', message: 'Are you sure?' } }).subscribe(outcome => {
+  if (outcome.result === ModalResult.Yes) {
+    // ...
+  }
+});
 ```
 
 ## API
 
 ### `ModalieurService`
 
-| Method | Description |
-| --- | --- |
-| `show(component, config?)` | Opens a modal; emits the `ModalOutcome` when it closes. |
-| `showUntil(component, until$, config?)` | Also closes the modal when `until$` emits anything. |
-| `showUntilCondition(component, condition$, config?)` | Also closes when `condition$` emits a truthy value. |
-| `showAndReturnRef(component, config?)` | Returns a `ModalRef` for programmatic control. |
+| Method                                               | Description                                             |
+| ---------------------------------------------------- | ------------------------------------------------------- |
+| `show(component, config?)`                           | Opens a modal; emits the `ModalOutcome` when it closes. |
+| `showUntil(component, until$, config?)`              | Also closes the modal when `until$` emits anything.     |
+| `showUntilCondition(component, condition$, config?)` | Also closes when `condition$` emits a truthy value.     |
+| `showAndReturnRef(component, config?)`               | Returns a `ModalRef` for programmatic control.          |
 
 ### `ModalConfig`
 
@@ -111,9 +109,9 @@ A built-in Bootstrap message box. Use it config-driven, with Windows-Forms-style
 ```ts
 modal
   .show(MessageBoxDialog, {
-    data: { title: 'Delete item?', message: 'This cannot be undone.', buttons: MessageBoxButtons.YesNo },
+    data: { title: 'Delete item?', message: 'This cannot be undone.', buttons: MessageBoxButtons.YesNo }
   })
-  .subscribe((o) => {
+  .subscribe(o => {
     if (o.result === ModalResult.Yes) {
       // ...
     }
@@ -134,7 +132,7 @@ Or with content projection — wrap `<mdlr-message-box>` in your own component a
         <button class="btn btn-primary" (click)="ok()">Got it</button>
       </div>
     </mdlr-message-box>
-  `,
+  `
 })
 export class MyMessageBox extends ModalContent {}
 ```

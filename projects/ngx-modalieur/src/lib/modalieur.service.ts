@@ -2,13 +2,12 @@ import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
 import { inject, Injectable, signal, Type } from '@angular/core';
 import { filter, Observable, take, takeUntil } from 'rxjs';
 
-import { BOOTSTRAP_MODAL_OPTIONS } from './bootstrap-modal-options';
-import { BootstrapDialogContainer } from './bootstrap-dialog-container';
+import { BootstrapDialogContainer } from './components/bootstrap-modal/bootstrap-dialog-container';
 import { ModalConfig } from './modal-config';
-import { ModalResultData } from './modal-content';
 import { MODAL_DATA } from './modal-data.token';
 import { ModalOutcome } from './modal-outcome';
 import { ModalRef } from './modal-ref';
+import { ModalResultData } from './modal-result-data';
 import { MODALIEUR_DEFAULT_CONFIG } from './provide-modalieur';
 
 /**
@@ -18,18 +17,15 @@ import { MODALIEUR_DEFAULT_CONFIG } from './provide-modalieur';
  */
 @Injectable({ providedIn: 'root' })
 export class ModalieurService {
-  private readonly dialog = inject(Dialog);
-  private readonly defaults = signal<ModalConfig>(inject(MODALIEUR_DEFAULT_CONFIG, { optional: true }) ?? {});
+  private readonly cdkDialog = inject(Dialog);
+  private readonly modalieurDefaultConfig = signal<ModalConfig>(inject(MODALIEUR_DEFAULT_CONFIG, { optional: true }) ?? {});
 
   /**
    * Opens a modal and emits its outcome when it closes. `TIn` is the input data
    * type (from `config.data`); the result-data type is inferred from the
    * component's `ModalContent` base.
    */
-  show<C, TIn = unknown>(
-    component: Type<C>,
-    config?: ModalConfig<TIn>
-  ): Observable<ModalOutcome<ModalResultData<C>>> {
+  show<C, TIn = unknown>(component: Type<C>, config?: ModalConfig<TIn>): Observable<ModalOutcome<ModalResultData<C>>> {
     return this.showAndReturnRef<C, TIn>(component, config).closed$;
   }
 
@@ -56,21 +52,16 @@ export class ModalieurService {
   }
 
   /** Opens a modal and returns its `ModalRef` for programmatic control. */
-  showAndReturnRef<C, TIn = unknown>(
-    component: Type<C>,
-    config?: ModalConfig<TIn>
-  ): ModalRef<ModalResultData<C>> {
-    const merged = { ...this.defaults(), ...config } as ModalConfig<TIn>;
-    const dialogRef = this.dialog.open<ModalOutcome<ModalResultData<C>>, TIn, C>(
+  showAndReturnRef<C, TIn = unknown>(component: Type<C>, config?: ModalConfig<TIn>): ModalRef<ModalResultData<C>> {
+    const merged = { ...this.modalieurDefaultConfig(), ...config } as ModalConfig<TIn>;
+    const dialogRef = this.cdkDialog.open<ModalOutcome<ModalResultData<C>>, TIn, C>(
       component,
       this.toDialogConfig<TIn, ModalResultData<C>, C>(merged)
     );
     return new ModalRef<ModalResultData<C>>(dialogRef);
   }
 
-  private toDialogConfig<TIn, TOut, C>(
-    config: ModalConfig<TIn>
-  ): DialogConfig<TIn, DialogRef<ModalOutcome<TOut>, C>> {
+  private toDialogConfig<TIn, TOut, C>(config: ModalConfig<TIn>): DialogConfig<TIn, DialogRef<ModalOutcome<TOut>, C>> {
     const dialogConfig: DialogConfig<TIn, DialogRef<ModalOutcome<TOut>, C>> = {
       data: config.data,
       disableClose: config.dismissible === false,
@@ -84,15 +75,7 @@ export class ModalieurService {
     };
 
     if (!config.unstyled) {
-      dialogConfig.container = {
-        type: BootstrapDialogContainer,
-        providers: () => [
-          {
-            provide: BOOTSTRAP_MODAL_OPTIONS,
-            useValue: { size: config.size, centered: config.centered, scrollable: config.scrollable }
-          }
-        ]
-      };
+      dialogConfig.container = BootstrapDialogContainer;
     }
 
     return dialogConfig;
