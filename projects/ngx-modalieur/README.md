@@ -4,7 +4,7 @@ Reactive, Bootstrap 5.3-styled modals for Angular, built on top of Angular CDK `
 
 - Open a modal and `subscribe` to its result, Windows-Forms-`MessageBox` style.
 - Every modal is wrapped in a Bootstrap `.modal-dialog > .modal-content` container automatically.
-- CDK powers focus trapping, Escape/backdrop handling, and accessibility under the hood, but never leaks into your code.
+- CDK is not required in your modal components; the service handles focus trapping, backdrop, and Escape. Advanced container customization is optional and CDK-coupled.
 
 ## Installation
 
@@ -24,6 +24,19 @@ Add the following global stylesheets (e.g. in `angular.json` `styles`):
 "node_modules/@kazepis/ngx-modalieur/styles/ngx-modalieur.css"
 ```
 
+## How it works
+
+A modal has two layers:
+
+1. **Your component** (`extends ModalContent`) — renders `.modal-header`, `.modal-body`, `.modal-footer` and closes via helpers like `yes()` / `cancel()`.
+2. **Dialog shell** (`BootstrapDialogContainer`) — applied automatically by `ModalieurService` unless `unstyled: true`. Wraps your component in `.modal > .modal-dialog > .modal-content`.
+
+You do **not** extend `BootstrapDialogContainer` to build normal modals. Use `ModalContent` for content; the service wires the Bootstrap shell.
+
+`BootstrapDialogContainer` is exported for **advanced** cases where you need to customize the outer CDK dialog shell. It extends `CdkDialogContainer`.
+
+For fully custom layouts (e.g. a viewport-filling overlay with your own CSS), pass `unstyled: true` and style the component yourself.
+
 ## Quick start
 
 ```ts
@@ -35,8 +48,9 @@ export const appConfig = {
 };
 ```
 
-A modal is just a component that renders the Bootstrap inner sections and closes itself
-via the `ModalContent` helpers:
+`provideModalieur()` without arguments registers `MODALIEUR_DEFAULTS` (backdrop, centered, dismissible, etc.). If you omit `provideModalieur()` entirely, the service uses the same defaults via `MODALIEUR_DEFAULTS`.
+
+A modal is just a component that renders the Bootstrap inner sections and closes itself via `ModalContent` helpers:
 
 ```ts
 import { Component, inject } from '@angular/core';
@@ -80,37 +94,88 @@ modal.show(ConfirmModalComponent, { data: { title: 'Confirm', message: 'Are you 
 
 ### `ModalieurService`
 
-| Method                                               | Description                                             |
-| ---------------------------------------------------- | ------------------------------------------------------- |
-| `show(component, config?)`                           | Opens a modal; emits the `ModalOutcome` when it closes. |
-| `showUntil(component, until$, config?)`              | Auto-closes on the **first emission** from `until$` (any value). |
-| `showUntilCondition(component, condition$, config?)` | Auto-closes on the **first truthy** emission from `condition$`. |
-| `showAndReturnRef(component, config?)`               | Returns a `ModalRef` for programmatic control.          |
-| `messageBox(options, config?)`                       | Opens `MessageBoxDialog`; emits `ModalResult` only.     |
-| `confirm(title, message?, config?)`                  | Yes / No message box; emits `ModalResult`.              |
-| `alert(title, message?, config?)`                    | Single OK message box; emits `ModalResult`.             |
+| Method                                               | Description                                                                 |
+| ---------------------------------------------------- | --------------------------------------------------------------------------- |
+| `show(component, config?)`                           | Opens a modal; emits the `ModalOutcome` when it closes.                     |
+| `showUntil(component, until$, config?)`              | Auto-closes on the **first emission** from `until$`; result is `AutoClose`. |
+| `showUntilCondition(component, condition$, config?)` | Auto-closes on the **first truthy** emission; result is `AutoClose`.        |
+| `showAndReturnRef(component, config?)`               | Returns a `ModalRef` for programmatic control.                              |
+| `messageBox(options, config?)`                       | Opens `MessageBoxDialog`; emits `ModalResult` only.                         |
+| `confirm(title, message?, config?)`                  | Yes / No message box; emits `ModalResult`.                                  |
+| `alert(title, message?, config?)`                    | Single OK message box; emits `ModalResult`.                                 |
 
 #### `showUntil` vs `showUntilCondition`
 
-These look similar but behave differently:
-
-| | `showUntil` | `showUntilCondition` |
-| --- | --- | --- |
-| Closes when | First emission (any value) | First **truthy** emission |
-| `false`, `0`, `''` | **Closes** | Ignored — modal stays open |
-| Typical use | Timers, one-shot events | Readiness signals (`loaded$`, `saveComplete$`) |
+|                    | `showUntil`                | `showUntilCondition`                           |
+| ------------------ | -------------------------- | ---------------------------------------------- |
+| Closes when        | First emission (any value) | First **truthy** emission                      |
+| Close result       | `ModalResult.AutoClose`    | `ModalResult.AutoClose`                        |
+| `false`, `0`, `''` | **Closes**                 | Ignored — modal stays open                     |
+| Typical use        | Timers, one-shot events    | Readiness signals (`loaded$`, `saveComplete$`) |
 
 ```ts
 import { concat, timer } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 
-// Closes after 4s — even though the emitted value is false.
-modalieur.showUntil(SpinnerModal, timer(4000).pipe(map(() => false))).subscribe(/* closed */);
+modalieur.showUntil(SpinnerModal, timer(4000).pipe(map(() => false))).subscribe(o => {
+  // o.result === ModalResult.AutoClose
+});
 
-// Stays open until a truthy value arrives.
-const ready$ = pollStatus().pipe(map(s => s === 'done'), filter(Boolean), take(1));
-modalieur.showUntilCondition(SpinnerModal, ready$).subscribe(/* closed */);
+const ready$ = pollStatus().pipe(
+  map(s => s === 'done'),
+  filter(Boolean),
+  take(1)
+);
+modalieur.showUntilCondition(SpinnerModal, ready$).subscribe(o => {
+  // o.result === ModalResult.AutoClose
+});
 ```
+
+### `ModalRef`
+
+Returned by `showAndReturnRef()`; can also be injected inside a modal component.
+
+| Member                  | Description                                                 |
+| ----------------------- | ----------------------------------------------------------- |
+| `id`                    | CDK dialog id                                               |
+| `closed$`               | `Observable<ModalOutcome<T>>` — emits when the modal closes |
+| `close(result?, data?)` | Programmatic close; default result is `Undefined`           |
+
+```ts
+const ref = modalieur.showAndReturnRef(SpinnerModal, { dismissible: false });
+ref.closed$.subscribe(outcome => {
+  /* ... */
+});
+await save();
+ref.close(ModalResult.Ok, { savedId: 42 });
+```
+
+### `ModalOutcome<TData>`
+
+```ts
+interface ModalOutcome<TData = unknown> {
+  result: ModalResult;
+  data?: TData;
+}
+```
+
+Emitted by `show()`, `showUntil()`, `showUntilCondition()`, and `ModalRef.closed$`.
+
+### `ModalContent`
+
+Base class for modal components. Provides protected close helpers:
+
+| Method                  | `ModalResult` |
+| ----------------------- | ------------- |
+| `yes(data?)`            | `Yes`         |
+| `no(data?)`             | `No`          |
+| `ok(data?)`             | `Ok`          |
+| `cancel(data?)`         | `Cancel`      |
+| `abort(data?)`          | `Abort`       |
+| `retry(data?)`          | `Retry`       |
+| `ignore(data?)`         | `Ignore`      |
+| `respondWithData(data)` | `Data`        |
+| `close(result?, data?)` | any           |
 
 ### `ModalConfig`
 
@@ -118,47 +183,56 @@ modalieur.showUntilCondition(SpinnerModal, ready$).subscribe(/* closed */);
 `dismissible` (default `true`), `backdrop` (default `true`), `unstyled`,
 `ariaLabel`, `ariaLabelledBy`, `ariaDescribedBy`.
 
-App-wide defaults are registered via `provideModalieur(...)` and stored in the `MODALIEUR_CONFIG` token.
+App-wide defaults: `provideModalieur(...)` → `MODALIEUR_CONFIG` token. Built-in defaults: `MODALIEUR_DEFAULTS`.
+
+Per-call config is merged on top: `{ ...appDefaults, ...perCallConfig }`.
 
 ### `ModalResult`
 
-`Undefined` (0, the uninitialized-variable safeguard), `Data`, `Yes`, `No`, `Ok`, `Cancel`,
-`Abort`, `Retry`, `Ignore`.
-
-A user dismissal (backdrop click or Escape) resolves to `Cancel`. `Undefined` is only the
-zero-default and the result of a programmatic `close()` without an explicit result.
+| Value                       | When                                                          |
+| --------------------------- | ------------------------------------------------------------- |
+| `Undefined`                 | Zero-default safeguard; programmatic `close()` with no result |
+| `Data`                      | `respondWithData()`                                           |
+| `Yes`, `No`, `Ok`, `Cancel` | Button helpers                                                |
+| `Abort`, `Retry`, `Ignore`  | Message-box / helper methods                                  |
+| `AutoClose`                 | `showUntil` / `showUntilCondition` auto-close                 |
+| `Cancel`                    | User dismissal (backdrop click or Escape)                     |
 
 ### `MessageBoxDialog`
 
-A built-in Bootstrap message box. Use it config-driven, with Windows-Forms-style button sets
-(`MessageBoxButtons`: `OK`, `OKCancel`, `AbortRetryIgnore`, `YesNoCancel`, `YesNo`, `RetryCancel`):
+Built-in Bootstrap message box (`mdlr-message-box`).
+
+**Shorthand APIs** (emit `ModalResult`; auto-wire `aria-labelledby` / `aria-describedby`):
 
 ```ts
-// Convenience helpers — emit ModalResult directly:
 modalieur.confirm('Delete item?', 'This cannot be undone.').subscribe(result => {
-  if (result === ModalResult.Yes) { /* ... */ }
+  if (result === ModalResult.Yes) {
+    /* ... */
+  }
 });
 
 modalieur.alert('Saved', 'Your changes were saved.').subscribe();
 
-// Full control via messageBox:
 modalieur
   .messageBox({ title: 'Retry?', message: 'Connection failed.', buttons: MessageBoxButtons.RetryCancel })
-  .subscribe(result => { /* Retry | Cancel */ });
-
-// Or open MessageBoxDialog directly for the full ModalOutcome:
-modal
-  .show(MessageBoxDialog, {
-    data: { title: 'Delete item?', message: 'This cannot be undone.', buttons: MessageBoxButtons.YesNo }
-  })
-  .subscribe(o => {
-    if (o.result === ModalResult.Yes) {
-      // ...
-    }
+  .subscribe(result => {
+    /* Retry | Cancel */
   });
 ```
 
-Or with content projection — wrap `<mdlr-message-box>` in your own component and project the parts:
+**Direct open** (full `ModalOutcome`; set aria attrs yourself or import `MESSAGE_BOX_TITLE_ID` / `MESSAGE_BOX_BODY_ID`):
+
+```ts
+modal
+  .show(MessageBoxDialog, {
+    data: { title: 'Delete?', message: 'Cannot be undone.', buttons: MessageBoxButtons.YesNo }
+  })
+  .subscribe(o => {
+    /* ... */
+  });
+```
+
+**Content projection** — wrap `<mdlr-message-box>` in your own component:
 
 ```ts
 @Component({
@@ -179,28 +253,32 @@ export class MyMessageBox extends ModalContent {}
 
 ### Input data vs. result data
 
-These are two independent types:
-
-- **Input** — `config.data`, injected into the modal via `MODAL_DATA`.
-- **Result** — what the modal returns; declared by extending `ModalContent<TResult>` and read from `outcome.data`. It is inferred for you on `show(...)`.
+- **Input** — `config.data`, injected via `MODAL_DATA`.
+- **Result** — declared by `ModalContent<TResult>`; inferred on `show()` as `ModalResultData<C>`.
 
 ```ts
-// Modal declares its RESULT type via ModalContent<T>; reads INPUT via MODAL_DATA.
 class EditModal extends ModalContent<{ saved: boolean }> {
-  data = inject<{ id: number }>(MODAL_DATA); // input
-  protected save = () => this.respondWithData({ saved: true }); // result
+  data = inject<{ id: number }>(MODAL_DATA);
+  protected save = () => this.respondWithData({ saved: true });
 }
 
-// Input is { id }, result is { saved } — no conflict.
 modal.show(EditModal, { data: { id: 7 } }).subscribe(o => console.log(o.data?.saved));
 ```
 
 ### `MODAL_DATA`
 
-Inject the `data` passed via `ModalConfig.data`:
-
 ```ts
 private readonly data = inject<MyData>(MODAL_DATA);
+```
+
+## Testing
+
+See `modalieur.service.spec.ts` for a minimal pattern — provide a fake `Dialog` and assert on `closed` emissions:
+
+```ts
+TestBed.configureTestingModule({
+  providers: [ModalieurService, { provide: Dialog, useValue: fakeDialog }]
+});
 ```
 
 ## License
