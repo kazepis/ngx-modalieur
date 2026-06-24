@@ -9,6 +9,7 @@
     "publish:lib:dry": "npm publish ./dist/ngx-modalieur --dry-run",
     "pack:lib": "npm pack ./dist/ngx-modalieur",
     "watch": "ng build --watch --configuration development",
+    "deploy": "ng deploy ngx-modalieur-consumer-sample-app --base-href=/ngx-modalieur/",
     "test": "ng test"
   },
   "private": true,

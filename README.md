@@ -5,10 +5,13 @@
 [![npm version](https://img.shields.io/npm/v/ngx-modalieur)](https://www.npmjs.com/package/ngx-modalieur)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![License](https://img.shields.io/badge/License-MIT-blue)
+[![Live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://kazepis.github.io/ngx-modalieur/)
 
 ```bash
 npm install ngx-modalieur @angular/cdk bootstrap
 ```
+
+**[Live demo](https://kazepis.github.io/ngx-modalieur/)** — interactive examples in the browser.
 
 ## Table of contents
 
