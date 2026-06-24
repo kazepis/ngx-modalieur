@@ -1,18 +1,18 @@
-# @kazepis/ngx-modalieur
+# ngx-modalieur
 
 **Reactive Bootstrap modals for Angular — a thin layer on [CDK Dialog](https://material.angular.dev/cdk/dialog/overview).**
 
-[![npm version](https://img.shields.io/npm/v/@kazepis/ngx-modalieur)](https://www.npmjs.com/package/@kazepis/ngx-modalieur)
+[![npm version](https://img.shields.io/npm/v/ngx-modalieur)](https://www.npmjs.com/package/ngx-modalieur)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
 ```bash
-npm install @kazepis/ngx-modalieur @angular/cdk bootstrap
+npm install ngx-modalieur @angular/cdk bootstrap
 ```
 
 ## Table of contents
 
-- [@kazepis/ngx-modalieur](#kazepisngx-modalieur)
+- [ngx-modalieur](#ngx-modalieur)
   - [Table of contents](#table-of-contents)
   - [What is this?](#what-is-this)
   - [Why use it?](#why-use-it)
@@ -88,7 +88,7 @@ It is **not** a replacement for CDK Dialog. Focus trapping, overlay positioning,
 **1. Install**
 
 ```bash
-npm install @kazepis/ngx-modalieur @angular/cdk bootstrap
+npm install ngx-modalieur @angular/cdk bootstrap
 ```
 
 **2. Add global styles** (e.g. in `angular.json` → `projects.[app].architect.build.options.styles`):
@@ -96,7 +96,7 @@ npm install @kazepis/ngx-modalieur @angular/cdk bootstrap
 ```json
 "node_modules/bootstrap/dist/css/bootstrap.min.css",
 "node_modules/@angular/cdk/overlay-prebuilt.css",
-"node_modules/@kazepis/ngx-modalieur/styles/ngx-modalieur.css"
+"node_modules/ngx-modalieur/styles/ngx-modalieur.css"
 ```
 
 The library stylesheet bridges CDK overlay behavior with Bootstrap modal appearance (backdrop darkness, scrollable body layout, enter animation).
@@ -106,7 +106,7 @@ The library stylesheet bridges CDK overlay behavior with Bootstrap modal appeara
 ```ts
 // app.config.ts
 import { ApplicationConfig } from '@angular/core';
-import { provideModalieur } from '@kazepis/ngx-modalieur';
+import { provideModalieur } from 'ngx-modalieur';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -124,7 +124,7 @@ Calling `provideModalieur()` with no arguments registers built-in defaults. Omit
 
 ```ts
 import { Component, inject } from '@angular/core';
-import { MODAL_DATA, ModalContent } from '@kazepis/ngx-modalieur';
+import { MODAL_DATA, ModalContent } from 'ngx-modalieur';
 
 @Component({
   standalone: true,
@@ -149,7 +149,7 @@ export class ConfirmModalComponent extends ModalContent {
 
 ```ts
 import { inject } from '@angular/core';
-import { ModalieurService, ModalResult } from '@kazepis/ngx-modalieur';
+import { ModalieurService, ModalResult } from 'ngx-modalieur';
 
 // In a component or service:
 private readonly modalieur = inject(ModalieurService);
@@ -299,7 +299,7 @@ this.modalieur
 **Accessibility:** `messageBox()` / `confirm()` / `alert()` automatically set `ariaLabelledBy` and `ariaDescribedBy` to match the ids on the message-box title and body (`mdlr-message-box-title`, `mdlr-message-box-body`). If you call `show(MessageBoxDialog, …)` directly, pass those ids (or import the constants) so CDK Dialog can label the overlay correctly:
 
 ```ts
-import { MESSAGE_BOX_BODY_ID, MESSAGE_BOX_TITLE_ID, MessageBoxDialog, MessageBoxButtons } from '@kazepis/ngx-modalieur';
+import { MESSAGE_BOX_BODY_ID, MESSAGE_BOX_TITLE_ID, MessageBoxDialog, MessageBoxButtons } from 'ngx-modalieur';
 
 this.modalieur
   .show(MessageBoxDialog, {
@@ -540,7 +540,7 @@ Provide a fake CDK `Dialog` and assert on `closed` emissions. See [`modalieur.se
 ```ts
 import { Dialog } from '@angular/cdk/dialog';
 import { TestBed } from '@angular/core/testing';
-import { ModalieurService } from '@kazepis/ngx-modalieur';
+import { ModalieurService } from 'ngx-modalieur';
 
 TestBed.configureTestingModule({
   providers: [ModalieurService, { provide: Dialog, useValue: fakeDialog }]

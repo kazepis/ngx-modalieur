@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { MODAL_DATA, ModalContent } from '@kazepis/ngx-modalieur';
+import { MODAL_DATA, ModalContent } from 'ngx-modalieur';
 
 import { SampleData } from './sample-data';
 

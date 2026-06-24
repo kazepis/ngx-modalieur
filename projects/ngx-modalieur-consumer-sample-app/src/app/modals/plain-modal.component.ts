@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ModalContent } from '@kazepis/ngx-modalieur';
+import { ModalContent } from 'ngx-modalieur';
 
 /**
  * Demonstrates `unstyled: true`: no Bootstrap, no `.modal` wrapper. The

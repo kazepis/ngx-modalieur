@@ -8,7 +8,9 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@kazepis/ngx-modalieur": ["./dist/ngx-modalieur"]
+      "ngx-modalieur": [
+        "./dist/ngx-modalieur"
+      ]
     },
     "skipLibCheck": true,
     "isolatedModules": true,

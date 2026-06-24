@@ -1,13 +1,13 @@
-# @kazepis/ngx-modalieur
+# ngx-modalieur
 
 **Reactive Bootstrap modals for Angular — a thin layer on [CDK Dialog](https://material.angular.dev/cdk/dialog/overview).**
 
-[![npm version](https://img.shields.io/npm/v/@kazepis/ngx-modalieur)](https://www.npmjs.com/package/@kazepis/ngx-modalieur)
+[![npm version](https://img.shields.io/npm/v/ngx-modalieur)](https://www.npmjs.com/package/ngx-modalieur)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
 ```bash
-npm install @kazepis/ngx-modalieur @angular/cdk bootstrap
+npm install ngx-modalieur @angular/cdk bootstrap
 ```
 
 ## Table of contents
@@ -41,13 +41,13 @@ It is **not** a replacement for CDK Dialog. Focus trapping, overlay positioning,
 
 ## Why use it?
 
-| | Raw CDK Dialog | ngx-modalieur |
-| --- | --- | --- |
-| Styling | Bring your own container and CSS | Bootstrap `.modal-dialog` shell + bridging styles |
-| Close result | `dialogRef.close(value)` — shape is yours | Standardized `{ result: ModalResult; data? }` |
-| Message boxes | Build yourself | `confirm()`, `alert()`, `messageBox()` |
-| App-wide defaults | DIY injection token | `provideModalieur({ … })` |
-| Auto-close on streams | Wire `takeUntil` + `close()` yourself | `showUntil()` / `showUntilCondition()` |
+|                       | Raw CDK Dialog                            | ngx-modalieur                                     |
+| --------------------- | ----------------------------------------- | ------------------------------------------------- |
+| Styling               | Bring your own container and CSS          | Bootstrap `.modal-dialog` shell + bridging styles |
+| Close result          | `dialogRef.close(value)` — shape is yours | Standardized `{ result: ModalResult; data? }`     |
+| Message boxes         | Build yourself                            | `confirm()`, `alert()`, `messageBox()`            |
+| App-wide defaults     | DIY injection token                       | `provideModalieur({ … })`                         |
+| Auto-close on streams | Wire `takeUntil` + `close()` yourself     | `showUntil()` / `showUntilCondition()`            |
 
 **Subscribe, don't wire.** `show()` returns `Observable<ModalOutcome>`. Open a modal, react in one `subscribe` or `pipe` — no modal IDs, no global result bus, no `setResult(id, …)` from inside the component.
 
@@ -66,18 +66,18 @@ It is **not** a replacement for CDK Dialog. Focus trapping, overlay positioning,
 
 ## Requirements
 
-| Package | Version | Required |
-| --- | --- | --- |
-| `@angular/core`, `@angular/common` | `^22.0.0` | Yes |
-| `@angular/cdk` | `^22.0.0` | Yes |
-| `bootstrap` | `^5.3.0` | Optional (needed for the default Bootstrap look) |
+| Package                            | Version   | Required                                         |
+| ---------------------------------- | --------- | ------------------------------------------------ |
+| `@angular/core`, `@angular/common` | `^22.0.0` | Yes                                              |
+| `@angular/cdk`                     | `^22.0.0` | Yes                                              |
+| `bootstrap`                        | `^5.3.0`  | Optional (needed for the default Bootstrap look) |
 
 ## Setup
 
 **1. Install**
 
 ```bash
-npm install @kazepis/ngx-modalieur @angular/cdk bootstrap
+npm install ngx-modalieur @angular/cdk bootstrap
 ```
 
 **2. Add global styles** (e.g. in `angular.json` → `projects.[app].architect.build.options.styles`):
@@ -85,7 +85,7 @@ npm install @kazepis/ngx-modalieur @angular/cdk bootstrap
 ```json
 "node_modules/bootstrap/dist/css/bootstrap.min.css",
 "node_modules/@angular/cdk/overlay-prebuilt.css",
-"node_modules/@kazepis/ngx-modalieur/styles/ngx-modalieur.css"
+"node_modules/ngx-modalieur/styles/ngx-modalieur.css"
 ```
 
 The library stylesheet bridges CDK overlay behavior with Bootstrap modal appearance (backdrop darkness, scrollable body layout, enter animation).
@@ -95,7 +95,7 @@ The library stylesheet bridges CDK overlay behavior with Bootstrap modal appeara
 ```ts
 // app.config.ts
 import { ApplicationConfig } from '@angular/core';
-import { provideModalieur } from '@kazepis/ngx-modalieur';
+import { provideModalieur } from 'ngx-modalieur';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -113,7 +113,7 @@ Calling `provideModalieur()` with no arguments registers built-in defaults. Omit
 
 ```ts
 import { Component, inject } from '@angular/core';
-import { MODAL_DATA, ModalContent } from '@kazepis/ngx-modalieur';
+import { MODAL_DATA, ModalContent } from 'ngx-modalieur';
 
 @Component({
   standalone: true,
@@ -138,7 +138,7 @@ export class ConfirmModalComponent extends ModalContent {
 
 ```ts
 import { inject } from '@angular/core';
-import { ModalieurService, ModalResult } from '@kazepis/ngx-modalieur';
+import { ModalieurService, ModalResult } from 'ngx-modalieur';
 
 // In a component or service:
 private readonly modalieur = inject(ModalieurService);
@@ -215,13 +215,13 @@ MODALIEUR_DEFAULTS  →  provideModalieur(...)  →  per-call config
 
 Built-in defaults (`MODALIEUR_DEFAULTS`):
 
-| Option | Default |
-| --- | --- |
-| `backdrop` | `true` |
-| `centered` | `true` |
-| `dismissible` | `true` |
-| `scrollable` | `false` |
-| `unstyled` | `false` |
+| Option        | Default |
+| ------------- | ------- |
+| `backdrop`    | `true`  |
+| `centered`    | `true`  |
+| `dismissible` | `true`  |
+| `scrollable`  | `false` |
+| `unstyled`    | `false` |
 
 ## Usage guide
 
@@ -229,11 +229,11 @@ Built-in defaults (`MODALIEUR_DEFAULTS`):
 
 All message-box APIs open the same built-in component (`MessageBoxDialog`). Pick the API by what you need back and how much wiring you want the library to do:
 
-| API | Prefer when | `subscribe` receives | A11y (`aria-labelledby` / `aria-describedby`) |
-| --- | --- | --- | --- |
-| `confirm()` / `alert()` | Yes/No or OK only | `ModalResult` | Auto-wired |
-| `messageBox({ … })` | Custom button set | `ModalResult` | Auto-wired |
-| `show(MessageBoxDialog, …)` | You want `ModalOutcome`, or full control over `ModalConfig` / aria | `ModalOutcome` | **You** must set aria (see below) |
+| API                         | Prefer when                                                        | `subscribe` receives | A11y (`aria-labelledby` / `aria-describedby`) |
+| --------------------------- | ------------------------------------------------------------------ | -------------------- | --------------------------------------------- |
+| `confirm()` / `alert()`     | Yes/No or OK only                                                  | `ModalResult`        | Auto-wired                                    |
+| `messageBox({ … })`         | Custom button set                                                  | `ModalResult`        | Auto-wired                                    |
+| `show(MessageBoxDialog, …)` | You want `ModalOutcome`, or full control over `ModalConfig` / aria | `ModalOutcome`       | **You** must set aria (see below)             |
 
 #### Shorthand (recommended for most cases)
 
@@ -271,7 +271,9 @@ These two calls open the **same dialog**; only the return type and a11y wiring d
 
 ```ts
 // Shorthand — emits ModalResult.Yes | ModalResult.No; aria wired for you.
-this.modalieur.confirm('Delete?', 'Cannot be undone.').subscribe(result => { /* … */ });
+this.modalieur.confirm('Delete?', 'Cannot be undone.').subscribe(result => {
+  /* … */
+});
 
 // Equivalent low-level — emits ModalOutcome; you handle aria yourself.
 this.modalieur
@@ -286,13 +288,17 @@ this.modalieur
 **Accessibility:** `messageBox()` / `confirm()` / `alert()` automatically set `ariaLabelledBy` and `ariaDescribedBy` to match the ids on the message-box title and body (`mdlr-message-box-title`, `mdlr-message-box-body`). If you call `show(MessageBoxDialog, …)` directly, pass those ids (or import the constants) so CDK Dialog can label the overlay correctly:
 
 ```ts
-import { MESSAGE_BOX_BODY_ID, MESSAGE_BOX_TITLE_ID, MessageBoxDialog, MessageBoxButtons } from '@kazepis/ngx-modalieur';
+import { MESSAGE_BOX_BODY_ID, MESSAGE_BOX_TITLE_ID, MessageBoxDialog, MessageBoxButtons } from 'ngx-modalieur';
 
-this.modalieur.show(MessageBoxDialog, {
-  ariaLabelledBy: MESSAGE_BOX_TITLE_ID,
-  ariaDescribedBy: MESSAGE_BOX_BODY_ID,
-  data: { title: 'Delete?', message: 'Cannot be undone.', buttons: MessageBoxButtons.YesNo }
-}).subscribe(outcome => { /* … */ });
+this.modalieur
+  .show(MessageBoxDialog, {
+    ariaLabelledBy: MESSAGE_BOX_TITLE_ID,
+    ariaDescribedBy: MESSAGE_BOX_BODY_ID,
+    data: { title: 'Delete?', message: 'Cannot be undone.', buttons: MessageBoxButtons.YesNo }
+  })
+  .subscribe(outcome => {
+    /* … */
+  });
 ```
 
 #### Custom markup (content projection)
@@ -318,17 +324,17 @@ export class MyMessageBox extends ModalContent {}
 
 Extend `ModalContent` and use the protected close helpers:
 
-| Method | `ModalResult` |
-| --- | --- |
-| `yes(data?)` | `Yes` |
-| `no(data?)` | `No` |
-| `ok(data?)` | `Ok` |
-| `cancel(data?)` | `Cancel` |
-| `abort(data?)` | `Abort` |
-| `retry(data?)` | `Retry` |
-| `ignore(data?)` | `Ignore` |
-| `respondWithData(data)` | `Data` |
-| `close(result?, data?)` | any |
+| Method                  | `ModalResult` |
+| ----------------------- | ------------- |
+| `yes(data?)`            | `Yes`         |
+| `no(data?)`             | `No`          |
+| `ok(data?)`             | `Ok`          |
+| `cancel(data?)`         | `Cancel`      |
+| `abort(data?)`          | `Abort`       |
+| `retry(data?)`          | `Retry`       |
+| `ignore(data?)`         | `Ignore`      |
+| `respondWithData(data)` | `Data`        |
+| `close(result?, data?)` | any           |
 
 The modal component does not inject a global modal service. Closing the dialog **is** emitting the result.
 
@@ -353,23 +359,23 @@ this.modalieur.show(EditModal, { data: { id: 7 } }).subscribe(outcome => {
 
 All options live on `ModalConfig` and can be set app-wide (`provideModalieur`) or per call:
 
-| Option | Description | Default |
-| --- | --- | --- |
-| `data` | Injected into the modal via `MODAL_DATA` | — |
-| `size` | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'fullscreen'` | Bootstrap medium (`md` adds no extra class) |
-| `centered` | `.modal-dialog-centered` | `true` |
-| `scrollable` | `.modal-dialog-scrollable` | `false` |
-| `dismissible` | Backdrop click / Escape closes → `Cancel` | `true` |
-| `backdrop` | Render CDK backdrop | `true` |
-| `unstyled` | Skip Bootstrap shell; component owns layout | `false` |
-| `ariaLabel` | CDK `ariaLabel` | — |
-| `ariaLabelledBy` | CDK `ariaLabelledBy` | — |
-| `ariaDescribedBy` | CDK `ariaDescribedBy` | — |
+| Option            | Description                                    | Default                                     |
+| ----------------- | ---------------------------------------------- | ------------------------------------------- |
+| `data`            | Injected into the modal via `MODAL_DATA`       | —                                           |
+| `size`            | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'fullscreen'` | Bootstrap medium (`md` adds no extra class) |
+| `centered`        | `.modal-dialog-centered`                       | `true`                                      |
+| `scrollable`      | `.modal-dialog-scrollable`                     | `false`                                     |
+| `dismissible`     | Backdrop click / Escape closes → `Cancel`      | `true`                                      |
+| `backdrop`        | Render CDK backdrop                            | `true`                                      |
+| `unstyled`        | Skip Bootstrap shell; component owns layout    | `false`                                     |
+| `ariaLabel`       | CDK `ariaLabel`                                | —                                           |
+| `ariaLabelledBy`  | CDK `ariaLabelledBy`                           | —                                           |
+| `ariaDescribedBy` | CDK `ariaDescribedBy`                          | —                                           |
 
 Non-dismissible modals with no backdrop (common in kiosk / operator UIs):
 
 ```ts
-provideModalieur({ dismissible: false, backdrop: false, centered: true })
+provideModalieur({ dismissible: false, backdrop: false, centered: true });
 ```
 
 Scrollable body with long content:
@@ -411,33 +417,31 @@ this.modalieur.show(MyModal, { data }).subscribe(outcome => {
 });
 ```
 
-| API | Emits | When |
-| --- | --- | --- |
-| `show(…)` | `ModalOutcome<T>` | User closes or dismisses |
-| `confirm()` / `alert()` / `messageBox()` | `ModalResult` | Button click or dismiss |
-| `showUntil(…)` / `showUntilCondition(…)` | `ModalOutcome` with `AutoClose` | User action **or** observable fires |
-| `showAndReturnRef(…).closed$` | `ModalOutcome<T>` | Same as `show`, plus you hold `ModalRef` |
+| API                                      | Emits                           | When                                     |
+| ---------------------------------------- | ------------------------------- | ---------------------------------------- |
+| `show(…)`                                | `ModalOutcome<T>`               | User closes or dismisses                 |
+| `confirm()` / `alert()` / `messageBox()` | `ModalResult`                   | Button click or dismiss                  |
+| `showUntil(…)` / `showUntilCondition(…)` | `ModalOutcome` with `AutoClose` | User action **or** observable fires      |
+| `showAndReturnRef(…).closed$`            | `ModalOutcome<T>`               | Same as `show`, plus you hold `ModalRef` |
 
 ### Auto-close with observables
 
 Keep a modal open until an external signal fires, then close with `ModalResult.AutoClose`.
 
-| | `showUntil` | `showUntilCondition` |
-| --- | --- | --- |
-| Closes when | First emission (any value) | First **truthy** emission |
-| `false`, `0`, `''` | **Closes** | Ignored — modal stays open |
-| Typical use | Timers, one-shot events | Readiness signals (`loaded$`, `saveComplete$`) |
+|                    | `showUntil`                | `showUntilCondition`                           |
+| ------------------ | -------------------------- | ---------------------------------------------- |
+| Closes when        | First emission (any value) | First **truthy** emission                      |
+| `false`, `0`, `''` | **Closes**                 | Ignored — modal stays open                     |
+| Typical use        | Timers, one-shot events    | Readiness signals (`loaded$`, `saveComplete$`) |
 
 ```ts
 import { timer } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 
 // Close after 4 seconds regardless of emission value
-this.modalieur
-  .showUntil(WaitingModalComponent, timer(4000).pipe(map(() => false)))
-  .subscribe(outcome => {
-    // outcome.result === ModalResult.AutoClose
-  });
+this.modalieur.showUntil(WaitingModalComponent, timer(4000).pipe(map(() => false))).subscribe(outcome => {
+  // outcome.result === ModalResult.AutoClose
+});
 
 // Close when status becomes 'done'
 const ready$ = this.pollStatus().pipe(
@@ -489,34 +493,34 @@ Everything in [`public-api.ts`](./src/public-api.ts) is part of the stable API: 
 
 ### `ModalieurService`
 
-| Method | Returns | Description |
-| --- | --- | --- |
-| `show(component, config?)` | `Observable<ModalOutcome<T>>` | Opens a modal; emits when it closes. |
-| `showUntil(component, until$, config?)` | `Observable<ModalOutcome<T>>` | Auto-closes on first `until$` emission → `AutoClose`. See [Auto-close](#auto-close-with-observables). |
-| `showUntilCondition(component, condition$, config?)` | `Observable<ModalOutcome<T>>` | Auto-closes on first truthy emission → `AutoClose`. |
-| `showAndReturnRef(component, config?)` | `ModalRef<T>` | Opens a modal; returns a ref for programmatic control. |
-| `messageBox(options, config?)` | `Observable<ModalResult>` | Config-driven `MessageBoxDialog`. |
-| `confirm(title, message?, config?)` | `Observable<ModalResult>` | Yes / No message box. |
-| `alert(title, message?, config?)` | `Observable<ModalResult>` | Single OK message box. |
+| Method                                               | Returns                       | Description                                                                                           |
+| ---------------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `show(component, config?)`                           | `Observable<ModalOutcome<T>>` | Opens a modal; emits when it closes.                                                                  |
+| `showUntil(component, until$, config?)`              | `Observable<ModalOutcome<T>>` | Auto-closes on first `until$` emission → `AutoClose`. See [Auto-close](#auto-close-with-observables). |
+| `showUntilCondition(component, condition$, config?)` | `Observable<ModalOutcome<T>>` | Auto-closes on first truthy emission → `AutoClose`.                                                   |
+| `showAndReturnRef(component, config?)`               | `ModalRef<T>`                 | Opens a modal; returns a ref for programmatic control.                                                |
+| `messageBox(options, config?)`                       | `Observable<ModalResult>`     | Config-driven `MessageBoxDialog`.                                                                     |
+| `confirm(title, message?, config?)`                  | `Observable<ModalResult>`     | Yes / No message box.                                                                                 |
+| `alert(title, message?, config?)`                    | `Observable<ModalResult>`     | Single OK message box.                                                                                |
 
 ### `ModalRef`
 
-| Member | Description |
-| --- | --- |
-| `id` | CDK dialog id |
-| `closed$` | `Observable<ModalOutcome<T>>` — emits when the modal closes |
-| `close(result?, data?)` | Programmatic close; default result is `Undefined` |
+| Member                  | Description                                                 |
+| ----------------------- | ----------------------------------------------------------- |
+| `id`                    | CDK dialog id                                               |
+| `closed$`               | `Observable<ModalOutcome<T>>` — emits when the modal closes |
+| `close(result?, data?)` | Programmatic close; default result is `Undefined`           |
 
 ### `ModalResult`
 
-| Value | When |
-| --- | --- |
-| `Undefined` | Programmatic `close()` with no result |
-| `Data` | `respondWithData()` |
-| `Yes`, `No`, `Ok`, `Cancel` | Button helpers |
-| `Abort`, `Retry`, `Ignore` | Message-box helpers |
-| `AutoClose` | `showUntil` / `showUntilCondition` auto-close |
-| `Cancel` | User dismissal (backdrop / Escape) when dismissible |
+| Value                       | When                                                |
+| --------------------------- | --------------------------------------------------- |
+| `Undefined`                 | Programmatic `close()` with no result               |
+| `Data`                      | `respondWithData()`                                 |
+| `Yes`, `No`, `Ok`, `Cancel` | Button helpers                                      |
+| `Abort`, `Retry`, `Ignore`  | Message-box helpers                                 |
+| `AutoClose`                 | `showUntil` / `showUntilCondition` auto-close       |
+| `Cancel`                    | User dismissal (backdrop / Escape) when dismissible |
 
 ## Testing
 
@@ -525,7 +529,7 @@ Provide a fake CDK `Dialog` and assert on `closed` emissions. See [`modalieur.se
 ```ts
 import { Dialog } from '@angular/cdk/dialog';
 import { TestBed } from '@angular/core/testing';
-import { ModalieurService } from '@kazepis/ngx-modalieur';
+import { ModalieurService } from 'ngx-modalieur';
 
 TestBed.configureTestingModule({
   providers: [ModalieurService, { provide: Dialog, useValue: fakeDialog }]

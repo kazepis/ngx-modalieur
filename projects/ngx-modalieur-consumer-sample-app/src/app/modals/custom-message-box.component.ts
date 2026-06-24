@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MessageBoxDialog, ModalContent } from '@kazepis/ngx-modalieur';
+import { MessageBoxDialog, ModalContent } from 'ngx-modalieur';
 
 /**
  * Demonstrates `MessageBoxDialog` with content projection: the header, body and

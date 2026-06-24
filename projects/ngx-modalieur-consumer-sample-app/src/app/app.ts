@@ -1,4 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
+import { HighlightAuto } from 'ngx-highlightjs';
+import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
 import {
   MESSAGE_BOX_BODY_ID,
   MESSAGE_BOX_TITLE_ID,
@@ -7,9 +9,7 @@ import {
   ModalieurService,
   ModalOutcome,
   ModalResult
-} from '@kazepis/ngx-modalieur';
-import { HighlightAuto } from 'ngx-highlightjs';
-import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
+} from 'ngx-modalieur';
 import { concat, filter, map, timer } from 'rxjs';
 
 import { ExampleId } from './examples';
@@ -63,7 +63,7 @@ export class App {
           code: `// angular.json → styles
 "node_modules/bootstrap/dist/css/bootstrap.min.css",
 "node_modules/@angular/cdk/overlay-prebuilt.css",
-"node_modules/@kazepis/ngx-modalieur/styles/ngx-modalieur.css"
+"node_modules/ngx-modalieur/styles/ngx-modalieur.css"
 
 // app.config.ts
 providers: [provideModalieur({ size: 'lg' })]`,
@@ -164,7 +164,7 @@ this.modalieur.showUntil(SpinnerModal, sessionEnded$).subscribe();`,
   MESSAGE_BOX_TITLE_ID,
   MessageBoxDialog,
   MessageBoxButtons,
-} from '@kazepis/ngx-modalieur';
+} from 'ngx-modalieur';
 
 this.modalieur
   .show(MessageBoxDialog, {
@@ -560,7 +560,12 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
   }
 
   protected openNamePrompt(): void {
-    this.modalieur.show(NamePromptModalComponent).subscribe(outcome => this.report(ExampleId.NamePrompt, outcome));
+    this.modalieur.show(NamePromptModalComponent).subscribe(outcome => {
+      this.report(ExampleId.NamePrompt, outcome);
+      if (outcome.result === ModalResult.Data) {
+        console.log('User entered name:', outcome.data?.name);
+      }
+    });
   }
 
   protected openReactiveChain(): void {

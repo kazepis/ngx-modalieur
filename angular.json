@@ -58,8 +58,9 @@
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/@angular/cdk/overlay-prebuilt.css",
+              "node_modules/ngx-modalieur/styles/ngx-modalieur.css",
+
               "node_modules/highlight.js/styles/github.css",
-              "node_modules/@kazepis/ngx-modalieur/styles/ngx-modalieur.css",
               "projects/ngx-modalieur-consumer-sample-app/src/styles.scss"
             ]
           },

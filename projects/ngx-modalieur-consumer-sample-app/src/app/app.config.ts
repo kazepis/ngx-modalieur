@@ -1,7 +1,7 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHighlightOptions } from 'ngx-highlightjs';
-import { provideModalieur } from '@kazepis/ngx-modalieur';
+import { provideModalieur } from 'ngx-modalieur';
 
 import { routes } from './app.routes';
 

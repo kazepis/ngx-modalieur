@@ -1,5 +1,5 @@
 /*
- * Public API Surface of @kazepis/ngx-modalieur
+ * Public API Surface of ngx-modalieur
  */
 
 export * from './lib/components/bootstrap-modal/bootstrap-dialog-container';

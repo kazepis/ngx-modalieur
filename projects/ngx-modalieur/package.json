@@ -1,6 +1,6 @@
 {
-  "name": "@kazepis/ngx-modalieur",
-  "version": "0.0.1",
+  "name": "ngx-modalieur",
+  "version": "22.0.0",
   "description": "Reactive, Bootstrap 5.3-styled modals for Angular built on Angular CDK Dialog.",
   "keywords": [
     "angular",
@@ -8,7 +8,26 @@
     "dialog",
     "bootstrap",
     "cdk",
-    "reactive"
+    "reactive",
+    "overlay",
+    "ngx-modalieur",
+    "typescript",
+    "angular-modal",
+    "angular-dialog",
+    "angular-cdk",
+    "angular-overlay",
+    "angular-bootstrap",
+    "angular-modal-dialog",
+    "angular-modal-overlay",
+    "angular-modal-component",
+    "angular-modal-service",
+    "angular-modal-library",
+    "angular-modal-package",
+    "angular-modal-plugin",
+    "angular-modal-ui",
+    "angular-modal-framework",
+    "angular-modal-toolkit",
+    "ngx"
   ],
   "license": "MIT",
   "repository": {
