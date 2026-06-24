@@ -27,3 +27,25 @@ pre.demo-code {
     padding-left: 0.75rem !important;
   }
 }
+
+.demo-hero {
+  max-width: 42rem;
+}
+
+.demo-nav {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 1020;
+}
+
+.demo-section {
+  scroll-margin-top: 5rem;
+}
+
+.demo-nav .nav-link {
+  color: var(--bs-secondary-color);
+}
+
+.demo-nav .nav-link:hover {
+  color: var(--bs-primary);
+}

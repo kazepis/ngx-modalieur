@@ -1,8 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
-import { MessageBoxButtons, MessageBoxDialog, ModalieurService, ModalOutcome, ModalResult } from '@kazepis/ngx-modalieur';
+import {
+  MESSAGE_BOX_BODY_ID,
+  MESSAGE_BOX_TITLE_ID,
+  MessageBoxButtons,
+  MessageBoxDialog,
+  ModalieurService,
+  ModalOutcome,
+  ModalResult
+} from '@kazepis/ngx-modalieur';
 import { HighlightAuto } from 'ngx-highlightjs';
 import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
-import { concat, map, timer } from 'rxjs';
+import { concat, filter, map, timer } from 'rxjs';
 
 import { ExampleId } from './examples';
 import { ConfirmModalComponent } from './modals/confirm-modal.component';
@@ -14,15 +22,18 @@ import { WaitingModalComponent } from './modals/waiting-modal.component';
 
 interface DemoExample {
   id: ExampleId;
-  section: string;
+  kind: 'docs' | 'try';
   label: string;
+  description?: string;
   btnClass: string;
   code: string;
   run: () => void;
 }
 
 interface DemoSection {
+  id: string;
   title: string;
+  description: string;
   examples: DemoExample[];
 }
 
@@ -35,94 +46,84 @@ interface DemoSection {
 export class App {
   private readonly modalieur = inject(ModalieurService);
 
-  protected readonly ExampleId = ExampleId;
   protected readonly outcomes = signal<Partial<Record<ExampleId, string>>>({});
 
   protected readonly sections: DemoSection[] = [
     {
-      title: 'Setup',
+      id: 'getting-started',
+      title: 'Getting started',
+      description: 'Install styles, register app-wide defaults, then open your first modal.',
       examples: [
         {
           id: ExampleId.Setup,
-          section: 'Setup',
-          label: 'Import styles and provide modalieur',
+          kind: 'docs',
+          label: 'Setup',
+          description: 'Global styles and provideModalieur() in app.config.ts.',
           btnClass: 'btn-secondary',
-          code: `// import these styles to your angular.json:
+          code: `// angular.json → styles
 "node_modules/bootstrap/dist/css/bootstrap.min.css",
 "node_modules/@angular/cdk/overlay-prebuilt.css",
 "node_modules/@kazepis/ngx-modalieur/styles/ngx-modalieur.css"
 
-// provide modalieur with the desired config in app.config.ts
-// e.g. we want all modals to be large by default
-providers: [provideModalieur({ size: 'lg' })] `,
+// app.config.ts
+providers: [provideModalieur({ size: 'lg' })]`,
           run: () => {}
+        },
+        {
+          id: ExampleId.QuickStart,
+          kind: 'try',
+          label: 'Quick start — confirm()',
+          description: 'One-liner confirm; subscribe to ModalResult.',
+          btnClass: 'btn-primary',
+          code: `this.modalieur
+  .confirm('Delete item?', 'This cannot be undone.')
+  .subscribe((result) => {
+    if (result === ModalResult.Yes) {
+      // act on Yes
+    }
+  });`,
+          run: () => this.openQuickStart()
         }
       ]
     },
     {
-      title: 'Reactive handling',
+      id: 'why-reactive',
+      title: 'Why reactive',
+      description: 'Open → subscribe → react. One emission when the modal closes — no modal IDs or result buses.',
       examples: [
         {
           id: ExampleId.Reactive,
-          section: 'Reactive handling',
-          label: 'Why reactive? — subscribe once, act on the outcome',
+          kind: 'docs',
+          label: 'Reactive modal handling',
+          description: 'Compare with imperative setResult(id, type) patterns.',
           btnClass: 'btn-secondary',
-          code: `// The core idea: open → subscribe → react. One emission when the modal closes.
-this.modalieur
-  .show(ConfirmModalComponent, { data: { title: 'Delete?', message: 'Sure?' } })
-  .subscribe((outcome) => {
-    if (outcome.result === ModalResult.Yes) {
-      this.deleteItem();
-    }
-  });
+          code: `// Open → subscribe → react
+this.modalieur.show(MyModal, { data }).subscribe((outcome) => {
+  if (outcome.result === ModalResult.Yes) this.save();
+});
 
-// Chain with RxJS — no callback pyramid
-this.modalieur
-  .confirm('Delete item?', 'This cannot be undone.')
-  .pipe(
-    filter((result) => result === ModalResult.Yes),
-    switchMap(() => this.api.delete(id)),
-  )
-  .subscribe();
+// Chain with RxJS
+this.modalieur.confirm('Delete?', 'Sure?').pipe(
+  filter((r) => r === ModalResult.Yes),
+  switchMap(() => this.api.delete(id)),
+).subscribe();
 
-// Auto-close when an external observable emits (hub event, timer, etc.)
-this.modalieur
-  .showUntil(WaitingModalComponent, sessionEnded$)
-  .subscribe((outcome) => {
-    // outcome.result === ModalResult.AutoClose when sessionEnded$ fired
-  });
-
-// vs. imperative style: showAndReturnRef → hide() → setResult(id, type) on a global bus`,
+// Auto-close when an external observable emits
+this.modalieur.showUntil(SpinnerModal, sessionEnded$).subscribe();`,
           run: () => {}
         }
       ]
     },
     {
-      title: 'Basics',
+      id: 'message-boxes',
+      title: 'Message boxes',
+      description: 'Shorthand APIs for confirm, alert, and custom button sets — or show(MessageBoxDialog) for full control.',
       examples: [
         {
-          id: ExampleId.Confirm,
-          section: 'Basics',
-          label: 'Confirm using consumer component (ConfirmModalComponent)',
-          btnClass: 'btn-primary',
-          code: `this.modalieur
-  .show(ConfirmModalComponent, {
-    data: {
-      title: 'Confirm',
-      message: 'Do you want to continue?'
-    },
-  })
-  .subscribe((outcome) => {
-    if (outcome.result === ModalResult.Yes) {
-      console.log('User clicked Yes');
-    }
-  });`,
-          run: () => this.openConfirm()
-        },
-        {
           id: ExampleId.ConfirmShorthand,
-          section: 'Basics',
-          label: 'confirm() / alert() shorthand',
+          kind: 'try',
+          label: 'confirm() then alert()',
+          description: 'Shorthand wrappers; aria wired automatically.',
           btnClass: 'btn-outline-dark',
           code: `this.modalieur
   .confirm('Delete item?', 'This cannot be undone.')
@@ -132,29 +133,120 @@ this.modalieur
         .alert('Saved', 'Your changes were saved.', { size: 'sm' })
         .subscribe();
     }
-  });
-`,
+  });`,
           run: () => this.openConfirmShorthand()
         },
         {
           id: ExampleId.MessageBoxShorthand,
-          section: 'Basics',
-          label: 'messageBox()',
+          kind: 'try',
+          label: 'messageBox() — Retry / Cancel',
+          description: 'Custom button set; emits ModalResult.',
           btnClass: 'btn-outline-dark',
-          code: `// Emits ModalResult; custom button set.
-this.modalieur
+          code: `this.modalieur
   .messageBox({
     title: 'Retry?',
     message: 'Could not reach the server.',
     buttons: MessageBoxButtons.RetryCancel,
   })
-  .subscribe((result) => { /* Retry | Cancel */ });`,
+  .subscribe((result) => {
+    // ModalResult.Retry | ModalResult.Cancel
+  });`,
           run: () => this.openMessageBoxShorthand()
         },
         {
+          id: ExampleId.MessageBoxLowLevel,
+          kind: 'try',
+          label: 'show(MessageBoxDialog) + aria ids',
+          description: 'Full ModalOutcome; pass MESSAGE_BOX_*_ID for accessibility.',
+          btnClass: 'btn-outline-dark',
+          code: `import {
+  MESSAGE_BOX_BODY_ID,
+  MESSAGE_BOX_TITLE_ID,
+  MessageBoxDialog,
+  MessageBoxButtons,
+} from '@kazepis/ngx-modalieur';
+
+this.modalieur
+  .show(MessageBoxDialog, {
+    ariaLabelledBy: MESSAGE_BOX_TITLE_ID,
+    ariaDescribedBy: MESSAGE_BOX_BODY_ID,
+    data: {
+      title: 'Delete?',
+      message: 'Cannot be undone.',
+      buttons: MessageBoxButtons.YesNo,
+    },
+  })
+  .subscribe((outcome) => {
+    // outcome.result
+  });`,
+          run: () => this.openMessageBoxLowLevel()
+        },
+        {
+          id: ExampleId.MessageBoxProjection,
+          kind: 'try',
+          label: 'Content projection',
+          description: 'Custom markup via mdlr-message-box slots.',
+          btnClass: 'btn-outline-dark',
+          code: `// CustomMessageBoxComponent wraps <mdlr-message-box>
+this.modalieur
+  .show(CustomMessageBoxComponent)
+  .subscribe((outcome) => { /* ... */ });`,
+          run: () => this.openCustomMessageBox()
+        }
+      ]
+    },
+    {
+      id: 'custom-modals',
+      title: 'Custom modals',
+      description: 'Extend ModalContent; render Bootstrap header, body, and footer.',
+      examples: [
+        {
+          id: ExampleId.Confirm,
+          kind: 'try',
+          label: 'show(ConfirmModalComponent)',
+          description: 'Consumer component with yes() / no() helpers.',
+          btnClass: 'btn-primary',
+          code: `this.modalieur
+  .show(ConfirmModalComponent, {
+    data: { title: 'Confirm', message: 'Do you want to continue?' },
+  })
+  .subscribe((outcome) => {
+    if (outcome.result === ModalResult.Yes) {
+      console.log('User clicked Yes');
+    }
+  });`,
+          run: () => this.openConfirm()
+        },
+        {
+          id: ExampleId.Dismissal,
+          kind: 'try',
+          label: 'Dismissal — backdrop / Escape',
+          description: 'Dismissible modals close with ModalResult.Cancel.',
+          btnClass: 'btn-outline-primary',
+          code: `this.modalieur
+  .show(ConfirmModalComponent, {
+    data: {
+      title: 'Dismissible',
+      message: 'Click backdrop or press Escape → Cancel.',
+    },
+  })
+  .subscribe((outcome) => {
+    // outcome.result === ModalResult.Cancel on dismissal
+  });`,
+          run: () => this.openDismissal()
+        }
+      ]
+    },
+    {
+      id: 'data-in-out',
+      title: 'Data in and out',
+      description: 'Pass input via config.data; return payload with respondWithData().',
+      examples: [
+        {
           id: ExampleId.NamePrompt,
-          section: 'Basics',
-          label: 'Returns data',
+          kind: 'try',
+          label: 'Name prompt — returns data',
+          description: 'ModalResult.Data with outcome.data.name.',
           btnClass: 'btn-outline-primary',
           code: `this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => {
   if (outcome.result === ModalResult.Data) {
@@ -162,84 +254,80 @@ this.modalieur
   }
 });`,
           run: () => this.openNamePrompt()
-        },
-        {
-          id: ExampleId.Dismissal,
-          section: 'Basics',
-          label: 'Dismissal (backdrop / Escape)',
-          btnClass: 'btn-outline-primary',
-          code: `// Click backdrop or press Escape → ModalResult.Cancel
-this.modalieur
-  .show(ConfirmModalComponent, {
-    data: {
-      title: 'Dismissible',
-      message: 'Click backdrop or press Escape to dismiss → Cancel.'
-    }
-  )
-  .subscribe((outcome) => { /* Cancel on dismissal */ });`,
-          run: () => this.openDismissal()
         }
       ]
     },
     {
-      title: 'Config',
+      id: 'configuration',
+      title: 'Configuration',
+      description: 'Per-call ModalConfig merged over app defaults from provideModalieur().',
       examples: [
         {
           id: ExampleId.SizeOverride,
-          section: 'Config',
-          label: 'Small size (overrides app default)',
+          kind: 'try',
+          label: 'size: sm',
+          description: 'Overrides app default lg from provideModalieur().',
           btnClass: 'btn-outline-primary',
           code: `// App default is size: 'lg' via provideModalieur.
-// Per-call size still overrides when needed.
-this.modalieur.show(ConfirmModalComponent, { size: 'sm', data });`,
+this.modalieur.show(ConfirmModalComponent, {
+  size: 'sm',
+  data: { title: 'Small', message: 'Per-call size overrides app default.' },
+});`,
           run: () => this.openSmall()
         },
         {
-          id: ExampleId.BootstrapFullscreen,
-          section: 'Config',
-          label: 'Bootstrap fullscreen',
-          btnClass: 'btn-outline-primary',
-          code: `this.modalieur
-  .show(ConfirmModalComponent, { size: 'fullscreen', data })
-  .subscribe((outcome) => { /* ... */ });`,
-          run: () => this.openBootstrapFullscreen()
-        },
-        {
-          id: ExampleId.CustomFullscreen,
-          section: 'Config',
-          label: 'Custom full-screen (unstyled)',
-          btnClass: 'btn-outline-primary',
-          code: `// unstyled: true — no Bootstrap container; component owns layout.
-this.modalieur
-  .show(FullscreenModalComponent, { unstyled: true, data })
-  .subscribe((outcome) => { /* ... */ });`,
-          run: () => this.openCustomFullscreen()
-        },
-        {
-          id: ExampleId.NonDismissible,
-          section: 'Config',
-          label: 'Non-dismissible',
-          btnClass: 'btn-outline-primary',
-          code: `this.modalieur
-  .show(ConfirmModalComponent, { dismissible: false, data })
-  .subscribe((outcome) => { /* ... */ });`,
-          run: () => this.openStatic()
-        },
-        {
           id: ExampleId.ScrollableBody,
-          section: 'Config',
-          label: 'Scrollable body',
+          kind: 'try',
+          label: 'scrollable: true',
+          description: 'Long body scrolls inside the dialog.',
           btnClass: 'btn-outline-primary',
           code: `this.modalieur.show(ConfirmModalComponent, {
   scrollable: true,
-  data: { title: '…', message: longText },
+  data: { title: 'Terms', message: longText },
 });`,
           run: () => this.openScrollable()
         },
         {
+          id: ExampleId.NonDismissible,
+          kind: 'try',
+          label: 'dismissible: false',
+          description: 'Backdrop and Escape do not close the modal.',
+          btnClass: 'btn-outline-primary',
+          code: `this.modalieur.show(ConfirmModalComponent, {
+  dismissible: false,
+  data: { title: 'Non-dismissible', message: 'Use a button to close.' },
+});`,
+          run: () => this.openStatic()
+        },
+        {
+          id: ExampleId.BootstrapFullscreen,
+          kind: 'try',
+          label: 'size: fullscreen',
+          description: 'Bootstrap .modal-fullscreen via the built-in shell.',
+          btnClass: 'btn-outline-primary',
+          code: `this.modalieur.show(ConfirmModalComponent, {
+  size: 'fullscreen',
+  data: { title: 'Fullscreen', message: 'Bootstrap fullscreen size.' },
+});`,
+          run: () => this.openBootstrapFullscreen()
+        },
+        {
+          id: ExampleId.CustomFullscreen,
+          kind: 'try',
+          label: 'unstyled — custom full-screen',
+          description: 'No Bootstrap shell; component owns layout.',
+          btnClass: 'btn-outline-primary',
+          code: `this.modalieur.show(FullscreenModalComponent, {
+  unstyled: true,
+  data: { title: 'Custom overlay', message: 'Component owns the layout.' },
+});`,
+          run: () => this.openCustomFullscreen()
+        },
+        {
           id: ExampleId.Unstyled,
-          section: 'Config',
-          label: 'No Bootstrap (unstyled)',
+          kind: 'try',
+          label: 'unstyled — plain panel',
+          description: 'Minimal overlay without Bootstrap modal markup.',
           btnClass: 'btn-outline-secondary',
           code: `this.modalieur
   .show(PlainModalComponent, { unstyled: true })
@@ -249,15 +337,40 @@ this.modalieur
       ]
     },
     {
-      title: 'Async',
+      id: 'reactive-workflows',
+      title: 'Reactive workflows',
+      description: 'Compose modals with RxJS operators in a single pipeline.',
+      examples: [
+        {
+          id: ExampleId.ReactiveChain,
+          kind: 'try',
+          label: 'confirm().pipe(filter, …)',
+          description: 'Only proceed when the user clicks Yes.',
+          btnClass: 'btn-outline-primary',
+          code: `import { filter } from 'rxjs/operators';
+
+this.modalieur
+  .confirm('Delete item?', 'This cannot be undone.')
+  .pipe(filter((result) => result === ModalResult.Yes))
+  .subscribe(() => {
+    // user confirmed — run side effect
+  });`,
+          run: () => this.openReactiveChain()
+        }
+      ]
+    },
+    {
+      id: 'auto-close',
+      title: 'Auto-close',
+      description: 'Close when an observable emits — result is ModalResult.AutoClose.',
       examples: [
         {
           id: ExampleId.ShowUntil,
-          section: 'Async',
-          label: 'Auto-close (showUntil)',
+          kind: 'try',
+          label: 'showUntil — first emission',
+          description: 'Closes on any value, including false.',
           btnClass: 'btn-outline-primary',
-          code: `// Closes with ModalResult.AutoClose on first emission.
-this.modalieur
+          code: `this.modalieur
   .showUntil(WaitingModalComponent, timer(4000).pipe(map(() => false)))
   .subscribe((outcome) => {
     // outcome.result === ModalResult.AutoClose
@@ -266,93 +379,45 @@ this.modalieur
         },
         {
           id: ExampleId.ShowUntilCondition,
-          section: 'Async',
-          label: 'Auto-close on condition (showUntilCondition)',
+          kind: 'try',
+          label: 'showUntilCondition — first truthy',
+          description: 'Ignores falsy emissions until ready.',
           btnClass: 'btn-outline-primary',
           code: `const ready$ = concat(
   timer(1000).pipe(map(() => false)),
   timer(1500).pipe(map(() => true)),
 );
+
 this.modalieur
   .showUntilCondition(WaitingModalComponent, ready$)
   .subscribe((outcome) => {
     // outcome.result === ModalResult.AutoClose
   });`,
           run: () => this.openConditional()
-        },
-        {
-          id: ExampleId.ProgrammaticRef,
-          section: 'Async',
-          label: 'Programmatic control (showAndReturnRef)',
-          btnClass: 'btn-outline-primary',
-          code: `const ref = this.modalieur.showAndReturnRef(WaitingModalComponent, {
-  dismissible: false,
-});
-ref.closed$.subscribe((outcome) => { /* ... */ });
-save().then((id) => ref.close(ModalResult.Ok, { savedId: id }));`,
-          run: () => this.openProgress()
         }
       ]
     },
     {
-      title: 'MessageBox',
+      id: 'programmatic-control',
+      title: 'Programmatic control',
+      description: 'Hold a ModalRef and close from outside the component.',
       examples: [
         {
-          id: ExampleId.MessageBoxOk,
-          section: 'MessageBox',
-          label: 'MessageBox: OK',
-          btnClass: 'btn-outline-dark',
-          code: `this.modalieur
-  .show(MessageBoxDialog, {
-    data: { title: 'OK', message: '…', buttons: MessageBoxButtons.OK },
-  })
-  .subscribe((o) => { /* o.result === ModalResult.Ok */ });`,
-          run: () => this.openMessageBox(ExampleId.MessageBoxOk, MessageBoxButtons.OK, 'OK', 'A single OK button.')
-        },
-        {
-          id: ExampleId.MessageBoxOkCancel,
-          section: 'MessageBox',
-          label: 'MessageBox: OK / Cancel',
-          btnClass: 'btn-outline-dark',
-          code: `this.modalieur
-  .show(MessageBoxDialog, {
-    data: { title: 'Save?', message: '…', buttons: MessageBoxButtons.OKCancel },
-  })
-  .subscribe((o) => { /* Ok | Cancel */ });`,
-          run: () =>
-            this.openMessageBox(
-              ExampleId.MessageBoxOkCancel,
-              MessageBoxButtons.OKCancel,
-              'Save changes?',
-              'Proceed with saving?'
-            )
-        },
-        {
-          id: ExampleId.MessageBoxYesNo,
-          section: 'MessageBox',
-          label: 'MessageBox: Yes / No',
-          btnClass: 'btn-outline-dark',
-          code: `this.modalieur
-  .show(MessageBoxDialog, {
-    data: { buttons: MessageBoxButtons.YesNo, /* ... */ },
-  })
-  .subscribe((o) => { /* Yes | No */ });`,
-          run: () =>
-            this.openMessageBox(ExampleId.MessageBoxYesNo, MessageBoxButtons.YesNo, 'Delete item?', 'This cannot be undone.')
-        },
-        {
-          id: ExampleId.MessageBoxProjection,
-          section: 'MessageBox',
-          label: 'MessageBox: content projection',
-          btnClass: 'btn-outline-dark',
-          code: `<mdlr-message-box>
-  <div mbHeader>…</div>
-  <div mbBody>…</div>
-  <div mbFooter>…</div>
-</mdlr-message-box>
+          id: ExampleId.ProgrammaticRef,
+          kind: 'try',
+          label: 'showAndReturnRef',
+          description: 'closed$ + ref.close() after async work.',
+          btnClass: 'btn-outline-primary',
+          code: `const ref = this.modalieur.showAndReturnRef(WaitingModalComponent, {
+  dismissible: false,
+  data: { title: 'Saving…', message: 'Closes programmatically.' },
+});
 
-this.modalieur.show(CustomMessageBoxComponent).subscribe();`,
-          run: () => this.openCustomMessageBox()
+ref.closed$.subscribe((outcome) => { /* ... */ });
+
+await save();
+ref.close(ModalResult.Ok, { savedId: 42 });`,
+          run: () => this.openProgress()
         }
       ]
     }
@@ -362,18 +427,10 @@ this.modalieur.show(CustomMessageBoxComponent).subscribe();`,
     return this.outcomes()[id] ?? '—';
   }
 
-  protected openConfirm(): void {
-    this.modalieur
-      .show(ConfirmModalComponent, {
-        data: { title: 'Confirm', message: 'Do you want to continue?' }
-      })
-      .subscribe(outcome => {
-        if (outcome.result === ModalResult.Yes) {
-          console.log('User clicked Yes');
-        }
-
-        this.report(ExampleId.Confirm, outcome);
-      });
+  protected openQuickStart(): void {
+    this.modalieur.confirm('Delete item?', 'This cannot be undone.').subscribe(result => {
+      this.report(ExampleId.QuickStart, result);
+    });
   }
 
   protected openConfirmShorthand(): void {
@@ -393,6 +450,33 @@ this.modalieur.show(CustomMessageBoxComponent).subscribe();`,
         buttons: MessageBoxButtons.RetryCancel
       })
       .subscribe(result => this.report(ExampleId.MessageBoxShorthand, result));
+  }
+
+  protected openMessageBoxLowLevel(): void {
+    this.modalieur
+      .show(MessageBoxDialog, {
+        ariaLabelledBy: MESSAGE_BOX_TITLE_ID,
+        ariaDescribedBy: MESSAGE_BOX_BODY_ID,
+        data: {
+          title: 'Delete?',
+          message: 'Cannot be undone.',
+          buttons: MessageBoxButtons.YesNo
+        }
+      })
+      .subscribe(outcome => this.report(ExampleId.MessageBoxLowLevel, outcome));
+  }
+
+  protected openConfirm(): void {
+    this.modalieur
+      .show(ConfirmModalComponent, {
+        data: { title: 'Confirm', message: 'Do you want to continue?' }
+      })
+      .subscribe(outcome => {
+        if (outcome.result === ModalResult.Yes) {
+          console.log('User clicked Yes');
+        }
+        this.report(ExampleId.Confirm, outcome);
+      });
   }
 
   protected openDismissal(): void {
@@ -479,6 +563,13 @@ this.modalieur.show(CustomMessageBoxComponent).subscribe();`,
     this.modalieur.show(NamePromptModalComponent).subscribe(outcome => this.report(ExampleId.NamePrompt, outcome));
   }
 
+  protected openReactiveChain(): void {
+    this.modalieur
+      .confirm('Delete item?', 'This cannot be undone.')
+      .pipe(filter(result => result === ModalResult.Yes))
+      .subscribe(() => this.report(ExampleId.ReactiveChain, ModalResult.Yes));
+  }
+
   protected openProgress(): void {
     const ref = this.modalieur.showAndReturnRef(WaitingModalComponent, {
       dismissible: false,
@@ -492,12 +583,6 @@ this.modalieur.show(CustomMessageBoxComponent).subscribe();`,
     this.modalieur
       .show(PlainModalComponent, { unstyled: true })
       .subscribe(outcome => this.report(ExampleId.Unstyled, outcome));
-  }
-
-  protected openMessageBox(id: ExampleId, buttons: MessageBoxButtons, title: string, message: string): void {
-    this.modalieur
-      .show(MessageBoxDialog, { data: { title, message, buttons } })
-      .subscribe(outcome => this.report(id, outcome));
   }
 
   protected openCustomMessageBox(): void {

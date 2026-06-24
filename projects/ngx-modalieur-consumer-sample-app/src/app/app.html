@@ -1,31 +1,68 @@
-<main class="container py-5">
-  <h1 class="mb-1">ngx-modalieur</h1>
-  <p class="text-body-secondary mb-4">
-    Bootstrap-styled modals over Angular CDK Dialog. Open a modal, <code>subscribe</code> to the result — no modal IDs or
-    global result buses.
-  </p>
+<main class="container py-4 py-lg-5">
+  <header class="demo-hero mb-4">
+    <p class="text-uppercase text-body-secondary small fw-semibold mb-2">@kazepis/ngx-modalieur</p>
+    <h1 class="mb-2">Reactive Bootstrap modals for Angular</h1>
+    <p class="lead text-body-secondary mb-3">
+      A thin layer on Angular CDK Dialog. Open a modal, <code>subscribe</code> to the result — no modal IDs or global
+      result buses.
+    </p>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <button type="button" class="btn btn-primary" (click)="openQuickStart()">Try confirm()</button>
+      <a
+        class="btn btn-outline-secondary"
+        href="https://www.npmjs.com/package/@kazepis/ngx-modalieur"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        npm
+      </a>
+    </div>
+  </header>
 
-  @for (section of sections; track section.title) {
-    <section class="mb-5">
-      <h2 class="h4 mb-3">{{ section.title }}</h2>
+  <nav class="demo-nav navbar navbar-expand rounded border bg-body mb-5 px-3 py-2" aria-label="Demo sections">
+    <ul class="navbar-nav flex-row flex-wrap gap-1 gap-lg-2 small">
+      @for (section of sections; track section.id) {
+        <li class="nav-item">
+          <a class="nav-link py-1" [href]="'#' + section.id">{{ section.title }}</a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  @for (section of sections; track section.id) {
+    <section class="demo-section mb-5" [id]="section.id">
+      <h2 class="h4 mb-1">{{ section.title }}</h2>
+      <p class="text-body-secondary mb-3">{{ section.description }}</p>
       <div class="row g-4">
         @for (example of section.examples; track example.id) {
           <div class="col-12" [class.col-lg-6]="section.examples.length > 1">
             <div class="card h-100">
               <div class="card-body d-flex flex-column">
-                @if (example.id !== ExampleId.Setup && example.id !== ExampleId.Reactive) {
+                <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                  <div>
+                    <h3 class="h6 mb-1">{{ example.label }}</h3>
+                    @if (example.description) {
+                      <p class="text-body-secondary small mb-0">{{ example.description }}</p>
+                    }
+                  </div>
+                  @if (example.kind === 'docs') {
+                    <span class="badge text-bg-light border">Reference</span>
+                  }
+                </div>
+
+                @if (example.kind === 'try') {
                   <button type="button" class="btn align-self-start mb-3 {{ example.btnClass }}" (click)="example.run()">
-                    {{ example.label }}
+                    Run example
                   </button>
                   <div class="alert alert-secondary py-2 mb-3 small" role="status">
                     <strong>Outcome:</strong> {{ outcomeFor(example.id) }}
                   </div>
-                } @else {
-                  <p class="text-body-secondary small mb-3">{{ example.label }}</p>
                 }
-                <pre
-                  class="demo-code bg-body-tertiary border rounded mb-0 small flex-grow-1"
-                ><code [highlightAuto]="example.code" lineNumbers></code></pre>
+
+                <pre class="demo-code bg-body-tertiary border rounded mb-0 small flex-grow-1"><code
+                    [highlightAuto]="example.code"
+                    lineNumbers
+                  ></code></pre>
               </div>
             </div>
           </div>
