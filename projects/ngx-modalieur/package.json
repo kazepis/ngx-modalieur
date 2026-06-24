@@ -1,6 +1,6 @@
 {
   "name": "ngx-modalieur",
-  "version": "22.0.0",
+  "version": "0.0.0",
   "description": "Reactive, Bootstrap 5.3-styled modals for Angular built on Angular CDK Dialog.",
   "keywords": [
     "angular",
