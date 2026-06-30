@@ -56,4 +56,4 @@ import { ModalContent } from 'ngx-modalieur';
     `
   ]
 })
-export class PlainModalComponent extends ModalContent {}
+export class PlainModalComponent extends ModalContent<void, never> {}

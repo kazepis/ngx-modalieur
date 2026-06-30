@@ -7,11 +7,12 @@ import { MessageBoxButtons } from './components/message-box/message-box-buttons.
 import { MessageBoxOptions } from './components/message-box/message-box-options';
 import { MESSAGE_BOX_BODY_ID, MESSAGE_BOX_TITLE_ID, MessageBoxDialog } from './components/message-box/message-box.dialog';
 import { ModalConfig } from './modal-config';
+import { ModalContent } from './modal-content';
+import { ModalDataIn, ModalDataOut, ShowArgs } from './modal-data-types';
 import { MODAL_DATA } from './modal-data.token';
 import { MODALIEUR_DEFAULTS } from './modal-defaults';
 import { ModalOutcome } from './modal-outcome';
 import { ModalRef } from './modal-ref';
-import { ModalResultData } from './modal-result-data';
 import { ModalResult } from './modal-result.enum';
 import { MODALIEUR_CONFIG } from './provide-modalieur';
 
@@ -26,12 +27,14 @@ export class ModalieurService {
   private readonly modalieurConfig = signal<ModalConfig>(inject(MODALIEUR_CONFIG, { optional: true }) ?? MODALIEUR_DEFAULTS);
 
   /**
-   * Opens a modal and emits its outcome when it closes. `TIn` is the input data
-   * type (from `config.data`); the result-data type is inferred from the
-   * component's `ModalContent` base.
+   * Opens a modal and emits its outcome when it closes. Input and output types
+   * are inferred from the component's `ModalContent<TDataIn, TDataOut>` declaration.
    */
-  show<C, TIn = unknown>(component: Type<C>, config?: ModalConfig<TIn>): Observable<ModalOutcome<ModalResultData<C>>> {
-    return this.showAndReturnRef<C, TIn>(component, config).closed$;
+  show<C extends ModalContent<any, any>>(
+    component: Type<C>,
+    ...args: ShowArgs<C>
+  ): Observable<ModalOutcome<ModalDataOut<C>>> {
+    return this.showAndReturnRef(component, ...args).closed$;
   }
 
   /**
@@ -43,12 +46,12 @@ export class ModalieurService {
    *
    * Closes with {@link ModalResult.AutoClose}.
    */
-  showUntil<C, TIn = unknown>(
+  showUntil<C extends ModalContent<any, any>>(
     component: Type<C>,
     until$: Observable<unknown>,
-    config?: ModalConfig<TIn>
-  ): Observable<ModalOutcome<ModalResultData<C>>> {
-    const ref = this.showAndReturnRef<C, TIn>(component, config);
+    ...args: ShowArgs<C>
+  ): Observable<ModalOutcome<ModalDataOut<C>>> {
+    const ref = this.showAndReturnRef(component, ...args);
     until$.pipe(take(1), takeUntil(ref.closed$)).subscribe(() => ref.close(ModalResult.AutoClose));
     return ref.closed$;
   }
@@ -63,24 +66,25 @@ export class ModalieurService {
    *
    * Closes with {@link ModalResult.AutoClose}.
    */
-  showUntilCondition<C, TIn = unknown>(
+  showUntilCondition<C extends ModalContent<any, any>>(
     component: Type<C>,
     condition$: Observable<unknown>,
-    config?: ModalConfig<TIn>
-  ): Observable<ModalOutcome<ModalResultData<C>>> {
-    const ref = this.showAndReturnRef<C, TIn>(component, config);
+    ...args: ShowArgs<C>
+  ): Observable<ModalOutcome<ModalDataOut<C>>> {
+    const ref = this.showAndReturnRef(component, ...args);
     condition$.pipe(filter(Boolean), take(1), takeUntil(ref.closed$)).subscribe(() => ref.close(ModalResult.AutoClose));
     return ref.closed$;
   }
 
   /** Opens a modal and returns its `ModalRef` for programmatic control. */
-  showAndReturnRef<C, TIn = unknown>(component: Type<C>, config?: ModalConfig<TIn>): ModalRef<ModalResultData<C>> {
-    const merged = { ...this.modalieurConfig(), ...config } as ModalConfig<TIn>;
-    const dialogRef = this.cdkDialog.open<ModalOutcome<ModalResultData<C>>, TIn, C>(
+  showAndReturnRef<C extends ModalContent<any, any>>(component: Type<C>, ...args: ShowArgs<C>): ModalRef<ModalDataOut<C>> {
+    const config = args[0];
+    const merged = { ...this.modalieurConfig(), ...config } as ModalConfig<ModalDataIn<C>>;
+    const dialogRef = this.cdkDialog.open<ModalOutcome<ModalDataOut<C>>, ModalDataIn<C>, C>(
       component,
-      this.toDialogConfig<TIn, ModalResultData<C>, C>(merged)
+      this.toDialogConfig<ModalDataIn<C>, ModalDataOut<C>, C>(merged)
     );
-    return new ModalRef<ModalResultData<C>>(dialogRef);
+    return new ModalRef<ModalDataOut<C>>(dialogRef);
   }
 
   /**

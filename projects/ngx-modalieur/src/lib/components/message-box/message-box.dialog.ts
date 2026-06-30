@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { ModalContent } from '../../modal-content';
-import { MODAL_DATA } from '../../modal-data.token';
 import { ModalResult } from '../../modal-result.enum';
 import { describeMessageBoxButton, MESSAGE_BOX_BUTTON_SETS } from './message-box-buttons.config';
 import { MessageBoxButton } from './message-box-button';
@@ -46,12 +45,14 @@ export const MESSAGE_BOX_BODY_ID = 'mdlr-message-box-body';
     </div>
   `
 })
-export class MessageBoxDialog extends ModalContent {
+export class MessageBoxDialog extends ModalContent<MessageBoxOptions | null, never> {
   protected readonly Result = ModalResult;
   protected readonly titleId = MESSAGE_BOX_TITLE_ID;
   protected readonly bodyId = MESSAGE_BOX_BODY_ID;
 
-  private readonly options = inject<MessageBoxOptions | null>(MODAL_DATA, { optional: true }) ?? {};
+  private get options(): MessageBoxOptions {
+    return this.data ?? {};
+  }
 
   protected get title(): string {
     return this.options.title ?? '';

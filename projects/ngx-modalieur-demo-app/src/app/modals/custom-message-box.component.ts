@@ -29,4 +29,4 @@ import { MessageBoxDialog, ModalContent } from 'ngx-modalieur';
     </mdlr-message-box>
   `
 })
-export class CustomMessageBoxComponent extends ModalContent {}
+export class CustomMessageBoxComponent extends ModalContent<void, never> {}

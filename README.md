@@ -32,8 +32,9 @@ npm install ngx-modalieur @angular/cdk bootstrap
       - [Shorthand (recommended for most cases)](#shorthand-recommended-for-most-cases)
       - [Low-level: `show(MessageBoxDialog, …)`](#low-level-showmessageboxdialog-)
       - [Custom markup (content projection)](#custom-markup-content-projection)
-    - [Custom modal components](#custom-modal-components)
-    - [Passing data in and out](#passing-data-in-and-out)
+  - [Custom modal components](#custom-modal-components)
+  - [Typing modals](#typing-modals)
+  - [Passing data in and out](#passing-data-in-and-out)
     - [Configuration](#configuration)
     - [Reactive patterns](#reactive-patterns)
     - [Auto-close with observables](#auto-close-with-observables)
@@ -126,8 +127,8 @@ Calling `provideModalieur()` with no arguments registers built-in defaults. Omit
 **1. Define a modal component** — extend `ModalContent`, render Bootstrap inner sections, close via helpers:
 
 ```ts
-import { Component, inject } from '@angular/core';
-import { MODAL_DATA, ModalContent } from 'ngx-modalieur';
+import { Component } from '@angular/core';
+import { ModalContent } from 'ngx-modalieur';
 
 @Component({
   standalone: true,
@@ -143,10 +144,10 @@ import { MODAL_DATA, ModalContent } from 'ngx-modalieur';
     </div>
   `
 })
-export class ConfirmModalComponent extends ModalContent {
-  protected readonly data = inject<{ title: string; message: string }>(MODAL_DATA);
-}
+export class ConfirmModalComponent extends ModalContent<{ title: string; message: string }, never> {}
 ```
+
+Input is available as `this.data` (typed from the first generic). `config.data` is **required** at the call site when the modal declares input.
 
 **2. Open it and react to the outcome:**
 
@@ -216,6 +217,8 @@ interface ModalOutcome<TData = unknown> {
 ```
 
 The observable emits **once**, then completes. Backdrop click and Escape map to `ModalResult.Cancel` when `dismissible` is `true`.
+
+When you call `show(MyModal, …)`, `T` is inferred from the component's `ModalContent<TDataIn, TDataOut>` declaration (`TDataOut`).
 
 `confirm()`, `alert()`, and `messageBox()` unwrap this to `Observable<ModalResult>` for convenience.
 
@@ -352,20 +355,39 @@ Extend `ModalContent` and use the protected close helpers:
 
 The modal component does not inject a global modal service. Closing the dialog **is** emitting the result.
 
+### Typing modals
+
+Every modal extends `ModalContent<TDataIn = void, TDataOut = never>`. The component is the single source of truth — `show()` infers input and output types from it.
+
+| Shape               | Declaration               | `config.data` | `outcome.data`             |
+| ------------------- | ------------------------- | ------------- | -------------------------- |
+| No input, no output | `ModalContent` (defaults) | optional      | never (result only)        |
+| Input only          | `ModalContent<In, never>` | **required**  | never                      |
+| Output only         | `ModalContent<void, Out>` | optional      | typed (optional to return) |
+| Both                | `ModalContent<In, Out>`   | **required**  | typed (optional to return) |
+
+- **`void`** — no meaningful input; `this.data` exists but is unusable.
+- **`never`** — cannot return output data; `respondWithData` is uncallable.
+- **A concrete `TDataOut`** — returning data is **optional**: `close()` / `yes()` accept `data?`, so the same modal can close with or without a payload. `respondWithData` is the explicit always-with-data path.
+
+Inside the modal, input is available as **`this.data`** (injected by the base class). Do not inject `MODAL_DATA` manually.
+
+`ModalDataIn<C>` and `ModalDataOut<C>` extract types from a component class for advanced/generic callers.
+
 ### Passing data in and out
 
-- **Input** — pass via `config.data`; inject with `MODAL_DATA` inside the modal.
-- **Output** — declare on `ModalContent<TOut>`; returned as `outcome.data` when the matching helper is used.
+- **Input** — declare `TDataIn` on `ModalContent`; pass via `config.data` (required when `TDataIn` is not `void`); read as `this.data` inside the modal.
+- **Output** — declare `TDataOut` on `ModalContent`; returned as `outcome.data` when a close helper includes a payload.
 
 ```ts
-class EditModal extends ModalContent<{ saved: boolean }> {
-  protected readonly data = inject<{ id: number }>(MODAL_DATA);
-
+class EditModal extends ModalContent<{ id: number }, { saved: boolean }> {
   protected save = () => this.respondWithData({ saved: true });
 }
 
 this.modalieur.show(EditModal, { data: { id: 7 } }).subscribe(outcome => {
-  console.log(outcome.data?.saved); // true after save()
+  if (outcome.result === ModalResult.Data && outcome.data) {
+    console.log(outcome.data.saved); // true after save()
+  }
 });
 ```
 
@@ -373,18 +395,18 @@ this.modalieur.show(EditModal, { data: { id: 7 } }).subscribe(outcome => {
 
 All options live on `ModalConfig` and can be set app-wide (`provideModalieur`) or per call:
 
-| Option            | Description                                    | Default                                     |
-| ----------------- | ---------------------------------------------- | ------------------------------------------- |
-| `data`            | Injected into the modal via `MODAL_DATA`       | —                                           |
-| `size`            | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'fullscreen'` | Bootstrap medium (`md` adds no extra class) |
-| `centered`        | `.modal-dialog-centered`                       | `true`                                      |
-| `scrollable`      | `.modal-dialog-scrollable`                     | `false`                                     |
-| `dismissible`     | Backdrop click / Escape closes → `Cancel`      | `true`                                      |
-| `backdrop`        | Render CDK backdrop                            | `true`                                      |
-| `unstyled`        | Skip Bootstrap shell; component owns layout    | `false`                                     |
-| `ariaLabel`       | CDK `ariaLabel`                                | —                                           |
-| `ariaLabelledBy`  | CDK `ariaLabelledBy`                           | —                                           |
-| `ariaDescribedBy` | CDK `ariaDescribedBy`                          | —                                           |
+| Option            | Description                                                                 | Default                                     |
+| ----------------- | --------------------------------------------------------------------------- | ------------------------------------------- |
+| `data`            | Injected as `this.data`; required at call site when `TDataIn` is not `void` | —                                           |
+| `size`            | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'fullscreen'`                              | Bootstrap medium (`md` adds no extra class) |
+| `centered`        | `.modal-dialog-centered`                                                    | `true`                                      |
+| `scrollable`      | `.modal-dialog-scrollable`                                                  | `false`                                     |
+| `dismissible`     | Backdrop click / Escape closes → `Cancel`                                   | `true`                                      |
+| `backdrop`        | Render CDK backdrop                                                         | `true`                                      |
+| `unstyled`        | Skip Bootstrap shell; component owns layout                                 | `false`                                     |
+| `ariaLabel`       | CDK `ariaLabel`                                                             | —                                           |
+| `ariaLabelledBy`  | CDK `ariaLabelledBy`                                                        | —                                           |
+| `ariaDescribedBy` | CDK `ariaDescribedBy`                                                       | —                                           |
 
 Non-dismissible modals with no backdrop (common in kiosk / operator UIs):
 
@@ -453,9 +475,13 @@ import { timer } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 
 // Close after 4 seconds regardless of emission value
-this.modalieur.showUntil(WaitingModalComponent, timer(4000).pipe(map(() => false))).subscribe(outcome => {
-  // outcome.result === ModalResult.AutoClose
-});
+this.modalieur
+  .showUntil(WaitingModalComponent, timer(4000).pipe(map(() => false)), {
+    data: { title: 'Loading…', message: 'Please wait.' }
+  })
+  .subscribe(outcome => {
+    // outcome.result === ModalResult.AutoClose
+  });
 
 // Close when status becomes 'done'
 const ready$ = this.pollStatus().pipe(
@@ -463,22 +489,27 @@ const ready$ = this.pollStatus().pipe(
   filter(Boolean),
   take(1)
 );
-this.modalieur.showUntilCondition(WaitingModalComponent, ready$).subscribe();
+this.modalieur
+  .showUntilCondition(WaitingModalComponent, ready$, {
+    data: { title: 'Loading…', message: 'Please wait.' }
+  })
+  .subscribe();
 ```
 
 The user can still close early via buttons or dismissal — `AutoClose` only applies when the observable triggers the close.
 
 ### Programmatic control
 
-When you need to close from outside the component (e.g. after an async save), use `showAndReturnRef`:
+When you need to close from outside the component (e.g. after an async save), use `showAndReturnRef`. The modal must declare an output type if you pass a payload to `close()`; returning data is optional — omit the second argument when you only need the result.
 
 ```ts
+// SpinnerModal extends ModalContent<void, { savedId: number }>
 const ref = this.modalieur.showAndReturnRef(SpinnerModal, { dismissible: false });
 
 ref.closed$.subscribe(outcome => this.onSaveComplete(outcome));
 
 await this.save();
-ref.close(ModalResult.Ok, { savedId: 42 });
+ref.close(ModalResult.Ok, { savedId: 42 }); // payload optional when TDataOut is concrete
 ```
 
 `ModalRef` is also injectable inside the modal component (via `ModalContent`'s internal wiring).
@@ -503,13 +534,13 @@ Your component owns the entire layout (positioning, z-index, animations). CDK st
 
 ### Public exports
 
-Everything in [`public-api.ts`](./src/public-api.ts) is part of the stable API: `ModalieurService`, `ModalContent`, `ModalRef`, `ModalConfig`, `ModalOutcome`, `ModalResult`, `ModalSize`, `MODAL_DATA`, `MODALIEUR_CONFIG`, `MODALIEUR_DEFAULTS`, `provideModalieur`, `MessageBoxDialog`, `MessageBoxButtons`, `MessageBoxOptions`, `MESSAGE_BOX_TITLE_ID`, `MESSAGE_BOX_BODY_ID`, `BootstrapDialogContainer`.
+Everything in [`public-api.ts`](./projects/ngx-modalieur/src/public-api.ts) is part of the stable API: `ModalieurService`, `ModalContent`, `ModalRef`, `ModalConfig`, `ModalOutcome`, `ModalResult`, `ModalSize`, `ModalDataIn`, `ModalDataOut`, `MODAL_DATA`, `MODALIEUR_CONFIG`, `MODALIEUR_DEFAULTS`, `provideModalieur`, `MessageBoxDialog`, `MessageBoxButtons`, `MessageBoxOptions`, `MESSAGE_BOX_TITLE_ID`, `MESSAGE_BOX_BODY_ID`, `BootstrapDialogContainer`.
 
 ### `ModalieurService`
 
 | Method                                               | Returns                       | Description                                                                                           |
 | ---------------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `show(component, config?)`                           | `Observable<ModalOutcome<T>>` | Opens a modal; emits when it closes.                                                                  |
+| `show(component, config?)`                           | `Observable<ModalOutcome<T>>` | Opens a modal; emits when it closes. `config` required (with `data`) when component has input.        |
 | `showUntil(component, until$, config?)`              | `Observable<ModalOutcome<T>>` | Auto-closes on first `until$` emission → `AutoClose`. See [Auto-close](#auto-close-with-observables). |
 | `showUntilCondition(component, condition$, config?)` | `Observable<ModalOutcome<T>>` | Auto-closes on first truthy emission → `AutoClose`.                                                   |
 | `showAndReturnRef(component, config?)`               | `ModalRef<T>`                 | Opens a modal; returns a ref for programmatic control.                                                |

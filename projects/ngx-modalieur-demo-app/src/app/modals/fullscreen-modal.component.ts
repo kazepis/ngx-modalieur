@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { MODAL_DATA, ModalContent } from 'ngx-modalieur';
+import { Component } from '@angular/core';
+import { ModalContent } from 'ngx-modalieur';
 
 import { SampleData } from './sample-data';
 
@@ -97,6 +97,4 @@ import { SampleData } from './sample-data';
     `
   ]
 })
-export class FullscreenModalComponent extends ModalContent {
-  protected readonly data = inject<SampleData>(MODAL_DATA);
-}
+export class FullscreenModalComponent extends ModalContent<SampleData, never> {}

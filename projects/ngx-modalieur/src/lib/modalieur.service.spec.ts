@@ -5,11 +5,12 @@ import { Subject } from 'rxjs';
 
 import { ModalOutcome } from './modal-outcome';
 import { ModalResult } from './modal-result.enum';
+import { ModalContent } from './modal-content';
 import { ModalieurService } from './modalieur.service';
 import { MessageBoxButtons } from './components/message-box/message-box-buttons.enum';
 
 @Component({ standalone: true, template: '' })
-class DummyModal {}
+class DummyModal extends ModalContent<void, never> {}
 
 class FakeDialogRef {
   id = 'test-id';
@@ -97,7 +98,9 @@ describe('ModalieurService', () => {
 
   it('messageBox emits only the ModalResult', () => {
     const received: ModalResult[] = [];
-    service.messageBox({ title: 'Delete?', message: 'Sure?', buttons: MessageBoxButtons.YesNo }).subscribe(r => received.push(r));
+    service
+      .messageBox({ title: 'Delete?', message: 'Sure?', buttons: MessageBoxButtons.YesNo })
+      .subscribe(r => received.push(r));
 
     dialog.ref.close({ result: ModalResult.Yes });
     expect(received).toEqual([ModalResult.Yes]);

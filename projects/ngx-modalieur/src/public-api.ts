@@ -12,7 +12,7 @@ export * from './lib/modal-data.token';
 export * from './lib/modal-defaults';
 export * from './lib/modal-outcome';
 export * from './lib/modal-ref';
-export * from './lib/modal-result-data';
+export * from './lib/modal-data-types';
 export * from './lib/modal-result.enum';
 export * from './lib/modal-size';
 export * from './lib/modalieur.service';

@@ -44,8 +44,8 @@ describe('MessageBoxDialog', () => {
 
     for (const buttons of sets) {
       create(buttons);
-      const labels = (Array.from(fixture.nativeElement.querySelectorAll('.modal-footer button')) as HTMLElement[]).map(
-        el => el.textContent?.trim()
+      const labels = (Array.from(fixture.nativeElement.querySelectorAll('.modal-footer button')) as HTMLElement[]).map(el =>
+        el.textContent?.trim()
       );
       expect(labels.length).toBe(MESSAGE_BOX_BUTTON_SETS[buttons].length);
       fixture.destroy();

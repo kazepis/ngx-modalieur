@@ -1,7 +1,7 @@
 import { ModalSize } from './modal-size';
 
 export interface ModalConfig<TDataIn = unknown> {
-  /** Data injected into the modal component via the `MODAL_DATA` token. */
+  /** Data injected into the modal as `this.data`; required at the call site when the component's `TDataIn` is not `void`. */
   data?: TDataIn;
 
   /** Bootstrap dialog size. Omit for the default (medium) size. */

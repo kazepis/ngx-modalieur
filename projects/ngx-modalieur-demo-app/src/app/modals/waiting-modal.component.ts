@@ -1,7 +1,11 @@
-import { Component, inject } from '@angular/core';
-import { MODAL_DATA, ModalContent } from 'ngx-modalieur';
+import { Component } from '@angular/core';
+import { ModalContent } from 'ngx-modalieur';
 
 import { SampleData } from './sample-data';
+
+export interface WaitingModalResult {
+  savedId: number;
+}
 
 @Component({
   selector: 'app-waiting-modal',
@@ -17,6 +21,4 @@ import { SampleData } from './sample-data';
     </div>
   `
 })
-export class WaitingModalComponent extends ModalContent {
-  protected readonly data = inject<SampleData>(MODAL_DATA);
-}
+export class WaitingModalComponent extends ModalContent<SampleData, WaitingModalResult> {}

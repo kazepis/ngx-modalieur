@@ -1,11 +1,13 @@
 import { Directive, inject } from '@angular/core';
 
+import { MODAL_DATA } from './modal-data.token';
 import { ModalRef } from './modal-ref';
 import { ModalResult } from './modal-result.enum';
 
 @Directive()
-export abstract class ModalContent<TDataOut = unknown> {
-  protected readonly modalRef = inject<ModalRef<TDataOut>>(ModalRef);
+export abstract class ModalContent<TDataIn = void, TDataOut = never> {
+  protected readonly data = inject<TDataIn>(MODAL_DATA, { optional: true }) as TDataIn;
+  protected readonly modalRef = inject(ModalRef);
 
   protected yes(data?: TDataOut): void {
     this.close(ModalResult.Yes, data);

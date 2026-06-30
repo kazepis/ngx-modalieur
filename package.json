@@ -5,11 +5,11 @@
     "ng": "ng",
     "start": "ng serve",
     "build:lib": "ng build ngx-modalieur --configuration=production",
-    "build:consumer": "ng build ngx-modalieur-consumer-sample-app --configuration=production",
+    "build:demo": "ng build ngx-modalieur-demo-app --configuration=production",
     "publish:lib:dry": "npm publish ./dist/ngx-modalieur --dry-run",
     "pack:lib": "npm pack ./dist/ngx-modalieur",
     "watch": "ng build --watch --configuration development",
-    "deploy": "ng deploy ngx-modalieur-consumer-sample-app --base-href=/ngx-modalieur/",
+    "deploy": "ng deploy ngx-modalieur-demo-app --base-href=/ngx-modalieur/",
     "test": "ng test"
   },
   "private": true,

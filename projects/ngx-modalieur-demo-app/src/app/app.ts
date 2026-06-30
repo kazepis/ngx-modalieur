@@ -13,11 +13,15 @@ import {
 import { concat, filter, map, timer } from 'rxjs';
 
 import { ExampleId } from './examples';
+import { AckModalComponent } from './modals/ack-modal.component';
 import { ConfirmModalComponent } from './modals/confirm-modal.component';
 import { CustomMessageBoxComponent } from './modals/custom-message-box.component';
+import { DeleteConfirmModalComponent } from './modals/delete-confirm-modal.component';
 import { FullscreenModalComponent } from './modals/fullscreen-modal.component';
 import { NamePromptModalComponent } from './modals/name-prompt-modal.component';
 import { PlainModalComponent } from './modals/plain-modal.component';
+import { RatingModalComponent } from './modals/rating-modal.component';
+import { RenameModalComponent } from './modals/rename-modal.component';
 import { WaitingModalComponent } from './modals/waiting-modal.component';
 
 interface DemoExample {
@@ -72,12 +76,12 @@ providers: [provideModalieur({ size: 'lg' })]`,
         {
           id: ExampleId.QuickStart,
           kind: 'try',
-          label: 'Quick start — confirm()',
+          label: 'Quick start',
           description: 'One-liner confirm; subscribe to ModalResult.',
           btnClass: 'btn-primary',
           code: `this.modalieur
   .confirm('Delete item?', 'This cannot be undone.')
-  .subscribe((result) => {
+  .subscribe((result: ModalResult) => {
     if (result === ModalResult.Yes) {
       // act on Yes
     }
@@ -89,7 +93,8 @@ providers: [provideModalieur({ size: 'lg' })]`,
     {
       id: 'why-reactive',
       title: 'Why reactive',
-      description: 'Open → subscribe → react. One emission when the modal closes — no modal IDs or result buses.',
+      description:
+        'Open → subscribe → react. One emission when the modal closes. No need for modal IDs, event emitters, shared services, or other boilerplate.',
       examples: [
         {
           id: ExampleId.Reactive,
@@ -99,7 +104,9 @@ providers: [provideModalieur({ size: 'lg' })]`,
           btnClass: 'btn-secondary',
           code: `// Open → subscribe → react
 this.modalieur.show(MyModal, { data }).subscribe((outcome) => {
-  if (outcome.result === ModalResult.Yes) this.save();
+  if (outcome.result === ModalResult.Yes) {
+    this.save();
+  }
 });
 
 // Chain with RxJS
@@ -115,9 +122,59 @@ this.modalieur.showUntil(SpinnerModal, sessionEnded$).subscribe();`,
       ]
     },
     {
+      id: 'result-model',
+      title: 'Result model',
+      description:
+        'Every modal closes with a <code>ModalOutcome</code> — a <code>ModalResult</code> plus optional typed <code>data</code>. The shorthands <code>confirm()</code>, <code>alert()</code>, and <code>messageBox()</code> unwrap this to just <code>ModalResult</code>.',
+      examples: [
+        {
+          id: ExampleId.ResultEnum,
+          kind: 'docs',
+          label: 'ModalResult',
+          description: 'The enum every close maps to.',
+          btnClass: 'btn-secondary',
+          code: `enum ModalResult {
+  Undefined = 0, // programmatic close() with no result
+  Data,          // respondWithData(...)
+  Yes,
+  No,
+  Ok,
+  Cancel,        // also backdrop / Escape dismissal
+  Abort,
+  Retry,
+  Ignore,
+  AutoClose      // showUntil / showUntilCondition
+}`,
+          run: () => {}
+        },
+        {
+          id: ExampleId.OutcomeShape,
+          kind: 'docs',
+          label: 'ModalOutcome<TData>',
+          description: 'What show() emits; TData is inferred from the modal.',
+          btnClass: 'btn-secondary',
+          code: `interface ModalOutcome<TData = unknown> {
+  result: ModalResult;
+  data?: TData;
+}
+
+// show() infers TData from the modal's TDataOut
+this.modalieur
+  .show(RatingModalComponent) // ModalContent<void, { rating: number }>
+  .subscribe((outcome: ModalOutcome<{ rating: number }>) => {
+    if (outcome.result === ModalResult.Data && outcome.data) {
+      console.log(outcome.data.rating);
+    }
+  });`,
+          run: () => {}
+        }
+      ]
+    },
+    {
       id: 'message-boxes',
       title: 'Message boxes',
-      description: 'Shorthand APIs for confirm, alert, and custom button sets — or show(MessageBoxDialog) for full control.',
+      description:
+        'Shorthand APIs for confirm, alert, and custom button sets — or use <code>show(MessageBoxDialog)</code> for full control.',
       examples: [
         {
           id: ExampleId.ConfirmShorthand,
@@ -127,7 +184,7 @@ this.modalieur.showUntil(SpinnerModal, sessionEnded$).subscribe();`,
           btnClass: 'btn-outline-dark',
           code: `this.modalieur
   .confirm('Delete item?', 'This cannot be undone.')
-  .subscribe((result) => {
+  .subscribe((result: ModalResult) => {
     if (result === ModalResult.Yes) {
       this.modalieur
         .alert('Saved', 'Your changes were saved.', { size: 'sm' })
@@ -148,7 +205,7 @@ this.modalieur.showUntil(SpinnerModal, sessionEnded$).subscribe();`,
     message: 'Could not reach the server.',
     buttons: MessageBoxButtons.RetryCancel,
   })
-  .subscribe((result) => {
+  .subscribe((result: ModalResult) => {
     // ModalResult.Retry | ModalResult.Cancel
   });`,
           run: () => this.openMessageBoxShorthand()
@@ -176,7 +233,7 @@ this.modalieur
       buttons: MessageBoxButtons.YesNo,
     },
   })
-  .subscribe((outcome) => {
+  .subscribe((outcome: ModalOutcome) => {
     // outcome.result
   });`,
           run: () => this.openMessageBoxLowLevel()
@@ -190,7 +247,7 @@ this.modalieur
           code: `// CustomMessageBoxComponent wraps <mdlr-message-box>
 this.modalieur
   .show(CustomMessageBoxComponent)
-  .subscribe((outcome) => { /* ... */ });`,
+  .subscribe((outcome: ModalOutcome) => { /* ... */ });`,
           run: () => this.openCustomMessageBox()
         }
       ]
@@ -206,7 +263,8 @@ this.modalieur
           label: 'show(ConfirmModalComponent)',
           description: 'Consumer component with yes() / no() helpers.',
           btnClass: 'btn-primary',
-          code: `this.modalieur
+          code: `// ModalContent<SampleData, never> — input required at call site
+this.modalieur
   .show(ConfirmModalComponent, {
     data: { title: 'Confirm', message: 'Do you want to continue?' },
   })
@@ -238,6 +296,104 @@ this.modalieur
       ]
     },
     {
+      id: 'modal-shapes',
+      title: 'Modal data shapes',
+      description:
+        'Every custom modal extends ModalContent<TDataIn, TDataOut>. The component is the single source of truth — show() infers input and output types and enforces config.data when input is declared.',
+      examples: [
+        {
+          id: ExampleId.ShapeNone,
+          kind: 'try',
+          label: 'void, never — no input, no output',
+          description: 'Bare extends ModalContent or explicit void/never; omit config.',
+          btnClass: 'btn-outline-primary',
+          code: `// Author
+class AckModalComponent extends ModalContent<void, never> {
+  // ok() / cancel() — result only, no respondWithData
+}
+
+// Call — config optional
+this.modalieur
+  .show(AckModalComponent)
+  .subscribe((outcome: ModalOutcome<never>) => {
+    // outcome.result only; no outcome.data
+  });`,
+          run: () => this.openShapeNone()
+        },
+        {
+          id: ExampleId.ShapeInput,
+          kind: 'try',
+          label: 'Input only — TDataIn, never',
+          description: 'Reads this.data; config.data required at call site.',
+          btnClass: 'btn-outline-primary',
+          code: `// Author
+class DeleteConfirmModalComponent
+  extends ModalContent<{ itemName: string }, never> {}
+
+// Call — data required
+this.modalieur
+  .show(DeleteConfirmModalComponent, {
+    data: { itemName: 'report.pdf' },
+  })
+  .subscribe((outcome: ModalOutcome<never>) => {
+    if (outcome.result === ModalResult.Yes) {
+      // delete item
+    }
+  });`,
+          run: () => this.openShapeInput()
+        },
+        {
+          id: ExampleId.ShapeOutput,
+          kind: 'try',
+          label: 'Output only — void, TDataOut',
+          description: 'No input; respondWithData returns typed outcome.data.',
+          btnClass: 'btn-outline-primary',
+          code: `// Author
+class RatingModalComponent extends ModalContent<void, { rating: number }> {
+  protected rate(rating: number) {
+    this.respondWithData({ rating });
+  }
+}
+
+// Call — no config needed
+this.modalieur
+  .show(RatingModalComponent)
+  .subscribe((outcome: ModalOutcome<{ rating: number }>) => {
+    if (outcome.result === ModalResult.Data && outcome.data) {
+      console.log(outcome.data.rating);
+    }
+  });`,
+          run: () => this.openShapeOutput()
+        },
+        {
+          id: ExampleId.ShapeInOut,
+          kind: 'try',
+          label: 'Both — TDataIn and TDataOut',
+          description: 'Seed from this.data; return payload with respondWithData.',
+          btnClass: 'btn-outline-primary',
+          code: `// Author
+class RenameModalComponent extends ModalContent<
+  { currentName: string },
+  { newName: string }
+> {
+  protected submit() {
+    this.respondWithData({ newName: this.newName() });
+  }
+}
+
+// Call — data required; outcome.data typed
+this.modalieur
+  .show(RenameModalComponent, { data: { currentName: 'Old name' } })
+  .subscribe((outcome: ModalOutcome<{ newName: string }>) => {
+    if (outcome.result === ModalResult.Data && outcome.data) {
+      console.log(outcome.data.newName);
+    }
+  });`,
+          run: () => this.openShapeInOut()
+        }
+      ]
+    },
+    {
       id: 'data-in-out',
       title: 'Data in and out',
       description: 'Pass input via config.data; return payload with respondWithData().',
@@ -248,9 +404,16 @@ this.modalieur
           label: 'Name prompt — returns data',
           description: 'ModalResult.Data with outcome.data.name.',
           btnClass: 'btn-outline-primary',
-          code: `this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => {
+          code: `// ModalContent<void, NamePromptResult> — no input, typed output
+class NamePromptModalComponent extends ModalContent<void, NamePromptResult> {
+  protected submit(): void {
+    this.respondWithData({ name: this.name() });
+  }
+}
+
+this.modalieur.show(NamePromptModalComponent).subscribe((outcome) => {
   if (outcome.result === ModalResult.Data) {
-    console.log(outcome.data?.name);
+    console.log(outcome.data.name);
   }
 });`,
           run: () => this.openNamePrompt()
@@ -371,7 +534,9 @@ this.modalieur
           description: 'Closes on any value, including false.',
           btnClass: 'btn-outline-primary',
           code: `this.modalieur
-  .showUntil(WaitingModalComponent, timer(4000).pipe(map(() => false)))
+  .showUntil(WaitingModalComponent, timer(4000).pipe(map(() => false)), {
+    data: { title: 'Loading…', message: 'Please wait.' },
+  })
   .subscribe((outcome) => {
     // outcome.result === ModalResult.AutoClose
   });`,
@@ -389,7 +554,9 @@ this.modalieur
 );
 
 this.modalieur
-  .showUntilCondition(WaitingModalComponent, ready$)
+  .showUntilCondition(WaitingModalComponent, ready$, {
+    data: { title: 'Loading…', message: 'Please wait.' },
+  })
   .subscribe((outcome) => {
     // outcome.result === ModalResult.AutoClose
   });`,
@@ -428,13 +595,13 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
   }
 
   protected openQuickStart(): void {
-    this.modalieur.confirm('Delete item?', 'This cannot be undone.').subscribe(result => {
+    this.modalieur.confirm('Delete item?', 'This cannot be undone.', { size: 'sm' }).subscribe((result: ModalResult) => {
       this.report(ExampleId.QuickStart, result);
     });
   }
 
   protected openConfirmShorthand(): void {
-    this.modalieur.confirm('Delete item?', 'This cannot be undone.').subscribe(result => {
+    this.modalieur.confirm('Delete item?', 'This cannot be undone.').subscribe((result: ModalResult) => {
       this.report(ExampleId.ConfirmShorthand, result);
       if (result === ModalResult.Yes) {
         this.modalieur.alert('Saved', 'Your changes were saved.', { size: 'sm' }).subscribe();
@@ -449,7 +616,7 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
         message: 'Could not reach the server.',
         buttons: MessageBoxButtons.RetryCancel
       })
-      .subscribe(result => this.report(ExampleId.MessageBoxShorthand, result));
+      .subscribe((result: ModalResult) => this.report(ExampleId.MessageBoxShorthand, result));
   }
 
   protected openMessageBoxLowLevel(): void {
@@ -463,7 +630,7 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
           buttons: MessageBoxButtons.YesNo
         }
       })
-      .subscribe(outcome => this.report(ExampleId.MessageBoxLowLevel, outcome));
+      .subscribe((outcome: ModalOutcome) => this.report(ExampleId.MessageBoxLowLevel, outcome));
   }
 
   protected openConfirm(): void {
@@ -471,7 +638,7 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
       .show(ConfirmModalComponent, {
         data: { title: 'Confirm', message: 'Do you want to continue?' }
       })
-      .subscribe(outcome => {
+      .subscribe((outcome: ModalOutcome) => {
         if (outcome.result === ModalResult.Yes) {
           console.log('User clicked Yes');
         }
@@ -487,7 +654,27 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
           message: 'Click backdrop or press Escape to dismiss → Cancel.'
         }
       })
-      .subscribe(outcome => this.report(ExampleId.Dismissal, outcome));
+      .subscribe((outcome: ModalOutcome) => this.report(ExampleId.Dismissal, outcome));
+  }
+
+  protected openShapeNone(): void {
+    this.modalieur.show(AckModalComponent).subscribe((outcome: ModalOutcome) => this.report(ExampleId.ShapeNone, outcome));
+  }
+
+  protected openShapeInput(): void {
+    this.modalieur
+      .show(DeleteConfirmModalComponent, { data: { itemName: 'report.pdf' } })
+      .subscribe(outcome => this.report(ExampleId.ShapeInput, outcome));
+  }
+
+  protected openShapeOutput(): void {
+    this.modalieur.show(RatingModalComponent).subscribe(outcome => this.report(ExampleId.ShapeOutput, outcome));
+  }
+
+  protected openShapeInOut(): void {
+    this.modalieur
+      .show(RenameModalComponent, { data: { currentName: 'Old name' } })
+      .subscribe(outcome => this.report(ExampleId.ShapeInOut, outcome));
   }
 
   protected openSmall(): void {
@@ -562,8 +749,8 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
   protected openNamePrompt(): void {
     this.modalieur.show(NamePromptModalComponent).subscribe(outcome => {
       this.report(ExampleId.NamePrompt, outcome);
-      if (outcome.result === ModalResult.Data) {
-        console.log('User entered name:', outcome.data?.name);
+      if (outcome.result === ModalResult.Data && outcome.data) {
+        console.log('User entered name:', outcome.data.name);
       }
     });
   }
@@ -593,7 +780,7 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
   protected openCustomMessageBox(): void {
     this.modalieur
       .show(CustomMessageBoxComponent)
-      .subscribe(outcome => this.report(ExampleId.MessageBoxProjection, outcome));
+      .subscribe((outcome: ModalOutcome) => this.report(ExampleId.MessageBoxProjection, outcome));
   }
 
   private report(id: ExampleId, outcome: ModalOutcome | ModalResult): void {

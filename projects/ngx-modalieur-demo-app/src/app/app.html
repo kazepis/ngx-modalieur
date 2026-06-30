@@ -3,11 +3,10 @@
     <p class="text-uppercase text-body-secondary small fw-semibold mb-2">ngx-modalieur</p>
     <h1 class="mb-2">Reactive Bootstrap modals for Angular</h1>
     <p class="lead text-body-secondary mb-3">
-      A thin layer on Angular CDK Dialog. Open a modal, <code>subscribe</code> to the result — no modal IDs or global result
-      buses.
+      A thin layer on Angular CDK Dialog. Open a modal, <code>subscribe</code> to the result.
     </p>
     <div class="d-flex flex-wrap gap-2 align-items-center">
-      <button type="button" class="btn btn-primary" (click)="openQuickStart()">Try confirm()</button>
+      <button type="button" class="btn btn-primary" (click)="openQuickStart()">Show DEMO confirm() modal</button>
       <a
         class="btn btn-outline-secondary"
         href="https://www.npmjs.com/package/ngx-modalieur"
@@ -32,7 +31,7 @@
   @for (section of sections; track section.id) {
     <section class="demo-section mb-5" [id]="section.id">
       <h2 class="h4 mb-1">{{ section.title }}</h2>
-      <p class="text-body-secondary mb-3">{{ section.description }}</p>
+      <p class="text-body-secondary mb-3" [innerHTML]="section.description"></p>
       <div class="row g-4">
         @for (example of section.examples; track example.id) {
           <div class="col-12" [class.col-lg-6]="section.examples.length > 1">

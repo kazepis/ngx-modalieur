@@ -8,9 +8,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "ngx-modalieur": [
-        "./dist/ngx-modalieur"
-      ]
+      "ngx-modalieur": ["./dist/ngx-modalieur"]
     },
     "skipLibCheck": true,
     "isolatedModules": true,
@@ -33,10 +31,10 @@
       "path": "./projects/ngx-modalieur/tsconfig.spec.json"
     },
     {
-      "path": "./projects/ngx-modalieur-consumer-sample-app/tsconfig.app.json"
+      "path": "./projects/ngx-modalieur-demo-app/tsconfig.app.json"
     },
     {
-      "path": "./projects/ngx-modalieur-consumer-sample-app/tsconfig.spec.json"
+      "path": "./projects/ngx-modalieur-demo-app/tsconfig.spec.json"
     }
   ]
 }

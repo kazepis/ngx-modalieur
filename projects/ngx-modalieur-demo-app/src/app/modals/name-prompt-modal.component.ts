@@ -24,7 +24,7 @@ export interface NamePromptResult {
     </div>
   `
 })
-export class NamePromptModalComponent extends ModalContent<NamePromptResult> {
+export class NamePromptModalComponent extends ModalContent<void, NamePromptResult> {
   protected readonly name = signal('');
 
   protected submit(): void {

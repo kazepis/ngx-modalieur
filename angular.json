@@ -32,27 +32,27 @@
         }
       }
     },
-    "ngx-modalieur-consumer-sample-app": {
+    "ngx-modalieur-demo-app": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss"
         }
       },
-      "root": "projects/ngx-modalieur-consumer-sample-app",
-      "sourceRoot": "projects/ngx-modalieur-consumer-sample-app/src",
+      "root": "projects/ngx-modalieur-demo-app",
+      "sourceRoot": "projects/ngx-modalieur-demo-app/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "projects/ngx-modalieur-consumer-sample-app/src/main.ts",
-            "tsConfig": "projects/ngx-modalieur-consumer-sample-app/tsconfig.app.json",
+            "browser": "projects/ngx-modalieur-demo-app/src/main.ts",
+            "tsConfig": "projects/ngx-modalieur-demo-app/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "projects/ngx-modalieur-consumer-sample-app/public"
+                "input": "projects/ngx-modalieur-demo-app/public"
               }
             ],
             "styles": [
@@ -61,7 +61,7 @@
               "node_modules/ngx-modalieur/styles/ngx-modalieur.css",
 
               "node_modules/highlight.js/styles/github.css",
-              "projects/ngx-modalieur-consumer-sample-app/src/styles.scss"
+              "projects/ngx-modalieur-demo-app/src/styles.scss"
             ]
           },
           "configurations": {
@@ -92,10 +92,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "ngx-modalieur-consumer-sample-app:build:production"
+              "buildTarget": "ngx-modalieur-demo-app:build:production"
             },
             "development": {
-              "buildTarget": "ngx-modalieur-consumer-sample-app:build:development"
+              "buildTarget": "ngx-modalieur-demo-app:build:development"
             }
           },
           "defaultConfiguration": "development"
