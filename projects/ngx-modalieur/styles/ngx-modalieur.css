@@ -76,3 +76,7 @@
     animation: none;
   }
 }
+
+button[cdkFocusInitial]:focus {
+  box-shadow: var(--bs-btn-focus-box-shadow);
+}
