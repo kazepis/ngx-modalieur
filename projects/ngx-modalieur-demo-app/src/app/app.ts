@@ -159,9 +159,13 @@ this.modalieur.showUntil(SpinnerModal, sessionEnded$).subscribe();`,
 }
 
 // show() infers TData from the modal's TDataOut
+interface RatingResult { rating: number }
+
+class RatingModalComponent extends ModalContent<void, RatingResult> {}
+
 this.modalieur
-  .show(RatingModalComponent) // ModalContent<void, { rating: number }>
-  .subscribe((outcome: ModalOutcome<{ rating: number }>) => {
+  .show(RatingModalComponent)
+  .subscribe((outcome: ModalOutcome<RatingResult>) => {
     if (outcome.result === ModalResult.Data && outcome.data) {
       console.log(outcome.data.rating);
     }
