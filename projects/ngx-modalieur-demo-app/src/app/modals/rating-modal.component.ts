@@ -8,7 +8,6 @@ export interface RatingResult {
 /** Demo: output only — `ModalContent<void, RatingResult>`. */
 @Component({
   selector: 'app-rating-modal',
-  standalone: true,
   template: `
     <div class="modal-header">
       <h5 class="modal-title" id="rating-modal-title">Rate this demo</h5>
@@ -23,7 +22,7 @@ export interface RatingResult {
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="cancel()">Skip</button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()" cdkFocusInitial>Skip</button>
     </div>
   `
 })

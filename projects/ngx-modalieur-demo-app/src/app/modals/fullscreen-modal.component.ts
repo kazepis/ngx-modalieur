@@ -1,3 +1,4 @@
+import { A11yModule } from '@angular/cdk/a11y';
 import { Component } from '@angular/core';
 import { ModalContent } from 'ngx-modalieur';
 
@@ -10,9 +11,9 @@ import { SampleData } from './sample-data';
  */
 @Component({
   selector: 'app-fullscreen-modal',
-  standalone: true,
+  imports: [A11yModule],
   template: `
-    <div class="fs-popup">
+    <div class="fs-popup" cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
       <button type="button" class="fs-close" aria-label="Close" (click)="cancel()">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
           <path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -22,8 +23,8 @@ import { SampleData } from './sample-data';
         <h1>{{ data.title }}</h1>
         <p>{{ data.message }}</p>
         <div class="fs-actions">
-          <button type="button" class="fs-btn" (click)="cancel()">Close</button>
           <button type="button" class="fs-btn primary" (click)="ok()">OK</button>
+          <button type="button" class="fs-btn" (click)="cancel()" cdkFocusInitial>Close</button>
         </div>
       </div>
     </div>

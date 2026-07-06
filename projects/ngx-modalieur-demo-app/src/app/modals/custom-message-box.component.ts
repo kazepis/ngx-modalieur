@@ -23,8 +23,8 @@ import { MessageBoxDialog, ModalContent } from 'ngx-modalieur';
         </ul>
       </div>
       <div mbFooter class="d-flex gap-2">
-        <button type="button" class="btn btn-outline-secondary" (click)="cancel()">Dismiss</button>
         <button type="button" class="btn btn-success" (click)="ok()">Got it</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="cancel()" cdkFocusInitial>Dismiss</button>
       </div>
     </mdlr-message-box>
   `

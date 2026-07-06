@@ -248,7 +248,21 @@ this.modalieur
           label: 'Content projection',
           description: 'Custom markup via mdlr-message-box slots.',
           btnClass: 'btn-outline-dark',
-          code: `// CustomMessageBoxComponent wraps <mdlr-message-box>
+          code: `@Component({
+  imports: [MessageBoxDialog],
+  template: \`
+    <mdlr-message-box>
+      <div mbHeader>Custom header</div>
+      <div mbBody>Custom body</div>
+      <div mbFooter class="d-flex gap-2">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">Dismiss</button>
+        <button type="button" class="btn btn-primary" (click)="ok()">Got it</button>
+      </div>
+    </mdlr-message-box>
+  \`
+})
+class CustomMessageBoxComponent extends ModalContent<void, never> {}
+
 this.modalieur
   .show(CustomMessageBoxComponent)
   .subscribe((outcome: ModalOutcome) => { /* ... */ });`,
@@ -309,18 +323,20 @@ this.modalieur
           id: ExampleId.ShapeNone,
           kind: 'try',
           label: 'void, never — no input, no output',
-          description: 'Bare extends ModalContent or explicit void/never; omit config.',
+          description:
+            'show() emits ModalOutcome; for never output you only use outcome.result (ModalResult).',
           btnClass: 'btn-outline-primary',
           code: `// Author
 class AckModalComponent extends ModalContent<void, never> {
   // ok() / cancel() — result only, no respondWithData
 }
 
-// Call — config optional
+// Call — config optional; show() still emits ModalOutcome<never>
 this.modalieur
   .show(AckModalComponent)
-  .subscribe((outcome: ModalOutcome<never>) => {
-    // outcome.result only; no outcome.data
+  .subscribe((outcome) => {
+    const result: ModalResult = outcome.result;
+    // result === ModalResult.Ok | ModalResult.Cancel — no outcome.data
   });`,
           run: () => this.openShapeNone()
         },

@@ -8,7 +8,6 @@ export interface DeleteConfirmInput {
 /** Demo: input only — `ModalContent<DeleteConfirmInput, never>`. */
 @Component({
   selector: 'app-delete-confirm-modal',
-  standalone: true,
   template: `
     <div class="modal-header">
       <h5 class="modal-title" id="delete-confirm-title">Delete item?</h5>
@@ -21,8 +20,8 @@ export interface DeleteConfirmInput {
       </p>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="no()">No</button>
       <button type="button" class="btn btn-danger" (click)="yes()">Yes, delete</button>
+      <button type="button" class="btn btn-secondary" (click)="no()" cdkFocusInitial>No</button>
     </div>
   `
 })

@@ -19,8 +19,8 @@ export interface NamePromptResult {
       <input class="form-control" placeholder="Type a name" [(ngModel)]="name" (keyup.enter)="submit()" />
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
       <button type="button" class="btn btn-primary" [disabled]="!name()" (click)="submit()">OK</button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()" cdkFocusInitial>Cancel</button>
     </div>
   `
 })

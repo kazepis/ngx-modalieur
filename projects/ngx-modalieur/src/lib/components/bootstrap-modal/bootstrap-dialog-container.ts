@@ -1,3 +1,4 @@
+import { A11yModule } from '@angular/cdk/a11y';
 import { CdkDialogContainer } from '@angular/cdk/dialog';
 import { CdkPortalOutlet } from '@angular/cdk/portal';
 import { ChangeDetectionStrategy, Component, inject, ViewEncapsulation } from '@angular/core';
@@ -13,12 +14,12 @@ import { MODALIEUR_CONFIG } from '../../provide-modalieur';
 @Component({
   selector: 'mdlr-bootstrap-dialog',
   standalone: true,
-  imports: [CdkPortalOutlet],
+  imports: [CdkPortalOutlet, A11yModule],
   // The `.modal` wrapper is required: Bootstrap declares the `--bs-modal-*`
   // CSS variables (background, padding, width, etc.) on `.modal`, and provides
   // the full-screen context for `.modal-dialog` centering/sizing.
   template: `
-    <div class="modal" tabindex="-1">
+    <div class="modal d-block">
       <div
         class="modal-dialog"
         [class.modal-dialog-centered]="options.centered !== false && !options.scrollable"

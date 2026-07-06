@@ -1,4 +1,3 @@
-import { A11yModule } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { ModalContent } from '../../modal-content';
@@ -24,42 +23,32 @@ export const MESSAGE_BOX_BODY_ID = 'mdlr-message-box-body';
 @Component({
   selector: 'mdlr-message-box',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [A11yModule],
   template: `
-    <div cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
-      <div class="modal-header">
-        <ng-content select="[mbHeader]">
-          <h5 class="modal-title" [attr.id]="titleId">{{ title }}</h5>
-          <button type="button" class="btn-close" aria-label="Close" (click)="close(Result.Cancel)"></button>
-        </ng-content>
-      </div>
-      <div class="modal-body" [attr.id]="bodyId">
-        <ng-content select="[mbBody]">{{ message }}</ng-content>
-      </div>
-      <div class="modal-footer">
-        <ng-content select="[mbFooter]">
-          @for (button of buttons; track button.result; let last = $last) {
-            @if (last) {
-              <button type="button" class="btn {{ button.cssClass }}" (click)="close(button.result)" cdkFocusInitial>
-                {{ button.label }}
-              </button>
-            } @else {
-              <button type="button" class="btn {{ button.cssClass }}" (click)="close(button.result)">
-                {{ button.label }}
-              </button>
-            }
-          }
-        </ng-content>
-      </div>
+    <div class="modal-header">
+      <ng-content select="[mbHeader]">
+        <h5 class="modal-title" [attr.id]="titleId">{{ title }}</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="close(Result.Cancel)"></button>
+      </ng-content>
     </div>
-  `,
-  styles: [
-    `
-      button[cdkFocusInitial]:focus {
-        box-shadow: var(--bs-btn-focus-box-shadow);
-      }
-    `
-  ]
+    <div class="modal-body" [attr.id]="bodyId">
+      <ng-content select="[mbBody]">{{ message }}</ng-content>
+    </div>
+    <div class="modal-footer">
+      <ng-content select="[mbFooter]">
+        @for (button of buttons; track button.result; let last = $last) {
+          @if (last) {
+            <button type="button" class="btn {{ button.cssClass }}" (click)="close(button.result)" cdkFocusInitial>
+              {{ button.label }}
+            </button>
+          } @else {
+            <button type="button" class="btn {{ button.cssClass }}" (click)="close(button.result)">
+              {{ button.label }}
+            </button>
+          }
+        }
+      </ng-content>
+    </div>
+  `
 })
 export class MessageBoxDialog extends ModalContent<MessageBoxOptions | null, never> {
   protected readonly Result = ModalResult;

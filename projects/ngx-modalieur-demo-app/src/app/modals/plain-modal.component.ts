@@ -14,8 +14,8 @@ import { ModalContent } from 'ngx-modalieur';
       <h2>Plain modal</h2>
       <p>No Bootstrap here — this uses <code>unstyled: true</code> and the component's own CSS.</p>
       <div class="plain-actions">
-        <button type="button" (click)="cancel()">Close</button>
         <button type="button" class="primary" (click)="ok()">OK</button>
+        <button type="button" (click)="cancel()" cdkFocusInitial>Close</button>
       </div>
     </div>
   `,

@@ -13,7 +13,6 @@ export interface RenameResult {
 /** Demo: input and output — `ModalContent<RenameInput, RenameResult>`. */
 @Component({
   selector: 'app-rename-modal',
-  standalone: true,
   imports: [FormsModule],
   template: `
     <div class="modal-header">
@@ -29,12 +28,13 @@ export interface RenameResult {
         [ngModel]="newName()"
         (ngModelChange)="newName.set($event)"
         (keyup.enter)="submit()"
+        cdkFocusInitial
       />
       <p class="form-text mb-0">Current: {{ data.currentName }}</p>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
       <button type="button" class="btn btn-primary" [disabled]="!newName().trim()" (click)="submit()">Save</button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
     </div>
   `
 })
