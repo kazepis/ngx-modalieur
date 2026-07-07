@@ -10,7 +10,7 @@
     "pack:lib": "npm pack ./dist/ngx-modalieur",
     "watch": "ng build --watch --configuration development",
     "deploy": "ng deploy ngx-modalieur-demo-app --base-href=/ngx-modalieur/",
-    "test": "ng test"
+    "test": "ng test --watch=false"
   },
   "private": true,
   "packageManager": "npm@11.13.0",
@@ -24,6 +24,7 @@
     "@angular/router": "^22.0.0",
     "bootstrap": "^5.3.0",
     "ngx-highlightjs": "^14.0.1",
+    "ngx-modalieur": "^0.0.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
