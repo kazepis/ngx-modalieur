@@ -1,8 +1,9 @@
 # ngx-modalieur
 
-**Reactive Bootstrap modals for Angular — a thin layer on [CDK Dialog](https://material.angular.dev/cdk/dialog/overview).**
+**Reactive Bootstrap modals for Angular — a thin, typed layer on [CDK Dialog](https://material.angular.dev/cdk/dialog/overview).**
 
 [![npm version](https://img.shields.io/npm/v/ngx-modalieur)](https://www.npmjs.com/package/ngx-modalieur)
+[![npm downloads](https://img.shields.io/npm/dw/ngx-modalieur)](https://www.npmjs.com/package/ngx-modalieur)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 [![Live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://kazepis.github.io/ngx-modalieur/)
@@ -11,48 +12,43 @@
 npm install ngx-modalieur @angular/cdk bootstrap
 ```
 
-**[Live demo](https://kazepis.github.io/ngx-modalieur/)** — interactive examples in the browser.
+> **Open a modal, `subscribe` to the result.** No modal ids, no global result bus, no boilerplate.
+
+**[Try the live demo](https://kazepis.github.io/ngx-modalieur/)** — interactive examples and a config playground in your browser.
 
 ## Table of contents
 
-- [ngx-modalieur](#ngx-modalieur)
-  - [Table of contents](#table-of-contents)
-  - [What is this?](#what-is-this)
-  - [Why use it?](#why-use-it)
-  - [When to use something else](#when-to-use-something-else)
-  - [Requirements](#requirements)
-  - [Setup](#setup)
-  - [Quick start](#quick-start)
-  - [Core concepts](#core-concepts)
-    - [Two layers](#two-layers)
-    - [Result flow](#result-flow)
-    - [Config layering](#config-layering)
-  - [Usage guide](#usage-guide)
-    - [Message boxes](#message-boxes)
-      - [Shorthand (recommended for most cases)](#shorthand-recommended-for-most-cases)
-      - [Low-level: `show(MessageBoxDialog, …)`](#low-level-showmessageboxdialog-)
-      - [Custom markup (content projection)](#custom-markup-content-projection)
+- [What is this?](#what-is-this)
+- [Why use it?](#why-use-it)
+- [When to use something else](#when-to-use-something-else)
+- [Requirements](#requirements)
+- [Setup](#setup)
+- [Quick start (60 seconds)](#quick-start-60-seconds)
+- [Core concepts](#core-concepts)
+  - [Two layers](#two-layers)
+  - [Result flow](#result-flow)
+  - [Config layering](#config-layering)
+- [Usage guide](#usage-guide)
+  - [Message boxes](#message-boxes)
   - [Custom modal components](#custom-modal-components)
   - [Typing modals](#typing-modals)
   - [Passing data in and out](#passing-data-in-and-out)
-    - [Configuration](#configuration)
-    - [Reactive patterns](#reactive-patterns)
-    - [Auto-close with observables](#auto-close-with-observables)
-    - [Programmatic control](#programmatic-control)
-    - [Custom layouts](#custom-layouts)
-  - [API reference](#api-reference)
-    - [Public exports](#public-exports)
-    - [`ModalieurService`](#modalieurservice)
-    - [`ModalRef`](#modalref)
-    - [`ModalResult`](#modalresult)
-  - [Testing](#testing)
-  - [License](#license)
+  - [Configuration](#configuration)
+  - [Reactive patterns](#reactive-patterns)
+  - [Auto-close with observables](#auto-close-with-observables)
+  - [Programmatic control](#programmatic-control)
+  - [Custom layouts](#custom-layouts)
+- [API reference](#api-reference)
+- [Testing](#testing)
+- [License](#license)
 
 ## What is this?
 
-ngx-modalieur wraps **Angular CDK `Dialog`** with a **Bootstrap 5.3** shell, a standardized **`ModalOutcome`** result model, and convenience APIs for confirm/alert dialogs.
+ngx-modalieur wraps **Angular CDK `Dialog`** with a **Bootstrap 5.3** shell, a standardized **`ModalOutcome`** result model, and convenience APIs for confirm / alert dialogs.
 
 It is **not** a replacement for CDK Dialog. Focus trapping, overlay positioning, backdrop, and Escape handling still come from CDK. This library adds the Bootstrap markup, bridging CSS, reactive close semantics, and message-box shortcuts so you do not rebuild that glue in every app.
+
+New to Angular modals? Start with [Quick start](#quick-start-60-seconds) — you will have a working confirm dialog in under a minute.
 
 ## Why use it?
 
@@ -64,7 +60,7 @@ It is **not** a replacement for CDK Dialog. Focus trapping, overlay positioning,
 | App-wide defaults     | DIY injection token                       | `provideModalieur({ … })`                         |
 | Auto-close on streams | Wire `takeUntil` + `close()` yourself     | `showUntil()` / `showUntilCondition()`            |
 
-**Subscribe, don't wire.** `show()` returns `Observable<ModalOutcome>`. Open a modal, react in one `subscribe` or `pipe` — no modal IDs, no global result bus, no `setResult(id, …)` from inside the component.
+**Subscribe, don't wire.** `show()` returns `Observable<ModalOutcome>`. Open a modal, react in one `subscribe` or `pipe` — no modal ids, no global result bus, no `setResult(id, …)` from inside the component.
 
 **Bootstrap without glue.** `ModalieurService` automatically applies `BootstrapDialogContainer`, which wraps your component in `.modal > .modal-dialog > .modal-content`. You only render header, body, and footer.
 
@@ -77,7 +73,7 @@ It is **not** a replacement for CDK Dialog. Focus trapping, overlay positioning,
 - **Angular Material apps** — use [`MatDialog`](https://material.angular.dev/components/dialog/overview); it is integrated with Material theming.
 - **Non-Bootstrap design systems** — use CDK Dialog directly with your own container.
 - **A single one-off overlay** — CDK alone is enough; this library shines when modals are a recurring pattern.
-- **Angular &lt; 22** — not supported. Peer dependencies require `@angular/core`, `@angular/common`, and `@angular/cdk` `^22.0.0`.
+- **Angular < 22** — not supported. Peer dependencies require `@angular/core`, `@angular/common`, and `@angular/cdk` `^22.0.0`.
 
 ## Requirements
 
@@ -122,16 +118,34 @@ export const appConfig: ApplicationConfig = {
 
 Calling `provideModalieur()` with no arguments registers built-in defaults. Omitting `provideModalieur()` entirely also works — the service falls back to `MODALIEUR_DEFAULTS` internally.
 
-## Quick start
+## Quick start (60 seconds)
 
-**1. Define a modal component** — extend `ModalContent`, render Bootstrap inner sections, close via helpers:
+The fastest possible modal — no custom component needed:
+
+```ts
+import { inject } from '@angular/core';
+import { ModalieurService, ModalResult } from 'ngx-modalieur';
+
+export class MyComponent {
+  private readonly modalieur = inject(ModalieurService);
+
+  deleteItem(): void {
+    this.modalieur.confirm('Delete item?', 'This cannot be undone.').subscribe(result => {
+      if (result === ModalResult.Yes) {
+        // user confirmed — do the work
+      }
+    });
+  }
+}
+```
+
+Need your own content? Define a modal component by extending `ModalContent`, render the Bootstrap inner sections, and close via the built-in helpers:
 
 ```ts
 import { Component } from '@angular/core';
 import { ModalContent } from 'ngx-modalieur';
 
 @Component({
-  standalone: true,
   template: `
     <div class="modal-header">
       <h5 class="modal-title">{{ data.title }}</h5>
@@ -147,39 +161,21 @@ import { ModalContent } from 'ngx-modalieur';
 export class ConfirmModalComponent extends ModalContent<{ title: string; message: string }, never> {}
 ```
 
-Input is available as `this.data` (typed from the first generic). `config.data` is **required** at the call site when the modal declares input.
-
-**2. Open it and react to the outcome:**
+Then open it and react to the outcome:
 
 ```ts
-import { inject } from '@angular/core';
-import { ModalieurService, ModalResult } from 'ngx-modalieur';
-
-// In a component or service:
-private readonly modalieur = inject(ModalieurService);
-
-openConfirm(): void {
-  this.modalieur
-    .show(ConfirmModalComponent, {
-      data: { title: 'Confirm', message: 'Are you sure?' }
-    })
-    .subscribe(outcome => {
-      if (outcome.result === ModalResult.Yes) {
-        // user clicked Yes
-      }
-    });
-}
+this.modalieur
+  .show(ConfirmModalComponent, {
+    data: { title: 'Confirm', message: 'Are you sure?' }
+  })
+  .subscribe(outcome => {
+    if (outcome.result === ModalResult.Yes) {
+      // user clicked Yes
+    }
+  });
 ```
 
-Or skip the custom component entirely:
-
-```ts
-this.modalieur.confirm('Delete item?', 'This cannot be undone.').subscribe(result => {
-  if (result === ModalResult.Yes) {
-    this.deleteItem();
-  }
-});
-```
+Input is available inside the modal as `this.data` (typed from the first generic). `config.data` is **required** at the call site when the modal declares input.
 
 ## Core concepts
 
@@ -194,16 +190,14 @@ flowchart LR
   Caller -->|show| Service
   Service --> Shell
   Shell --> Content
-  Content -->|yes / cancel / respondWithData| Outcome[ModalOutcome emitted once]
+  Content -->|"yes / cancel / respondWithData"| Outcome[ModalOutcome emitted once]
   Outcome --> Caller
 ```
 
 1. **Your component** (`extends ModalContent`) — renders `.modal-header`, `.modal-body`, `.modal-footer` and closes via `yes()`, `cancel()`, `respondWithData()`, etc.
 2. **Dialog shell** (`BootstrapDialogContainer`) — applied automatically unless `unstyled: true`. Wraps your component in Bootstrap's outer modal markup.
 
-You do **not** extend `BootstrapDialogContainer` for normal modals. It is exported for advanced CDK container customization only.
-
-For fully custom layouts (viewport-filling overlays with your own CSS), pass `unstyled: true` and style the component yourself.
+You do **not** extend `BootstrapDialogContainer` for normal modals. It is exported for advanced CDK container customization only. For fully custom layouts (viewport-filling overlays with your own CSS), pass `unstyled: true` and style the component yourself.
 
 ### Result flow
 
@@ -218,9 +212,7 @@ interface ModalOutcome<TData = unknown> {
 
 The observable emits **once**, then completes. Backdrop click and Escape map to `ModalResult.Cancel` when `dismissible` is `true`.
 
-When you call `show(MyModal, …)`, `T` is inferred from the component's `ModalContent<TDataIn, TDataOut>` declaration (`TDataOut`).
-
-`confirm()`, `alert()`, and `messageBox()` unwrap this to `Observable<ModalResult>` for convenience.
+When you call `show(MyModal, …)`, `T` is inferred from the component's `ModalContent<TDataIn, TDataOut>` declaration (`TDataOut`). `confirm()`, `alert()`, and `messageBox()` unwrap this to `Observable<ModalResult>` for convenience.
 
 ### Config layering
 
@@ -284,24 +276,6 @@ Available button sets (`MessageBoxButtons` enum): `OK`, `OKCancel`, `YesNo`, `Ye
 
 Use this when you need the full `ModalOutcome` shape (`{ result, data? }`) for consistency with other `show()` calls, or when you want to pass `ModalConfig` without going through `messageBox()`.
 
-These two calls open the **same dialog**; only the return type and a11y wiring differ:
-
-```ts
-// Shorthand — emits ModalResult.Yes | ModalResult.No; aria wired for you.
-this.modalieur.confirm('Delete?', 'Cannot be undone.').subscribe(result => {
-  /* … */
-});
-
-// Equivalent low-level — emits ModalOutcome; you handle aria yourself.
-this.modalieur
-  .show(MessageBoxDialog, {
-    data: { title: 'Delete?', message: 'Cannot be undone.', buttons: MessageBoxButtons.YesNo }
-  })
-  .subscribe(outcome => {
-    // outcome.result === ModalResult.Yes | ModalResult.No | ModalResult.Cancel
-  });
-```
-
 **Accessibility:** `messageBox()` / `confirm()` / `alert()` automatically set `ariaLabelledBy` and `ariaDescribedBy` to match the ids on the message-box title and body (`mdlr-message-box-title`, `mdlr-message-box-body`). If you call `show(MessageBoxDialog, …)` directly, pass those ids (or import the constants) so CDK Dialog can label the overlay correctly:
 
 ```ts
@@ -314,7 +288,7 @@ this.modalieur
     data: { title: 'Delete?', message: 'Cannot be undone.', buttons: MessageBoxButtons.YesNo }
   })
   .subscribe(outcome => {
-    /* … */
+    // outcome.result === ModalResult.Yes | ModalResult.No | ModalResult.Cancel
   });
 ```
 
@@ -370,9 +344,7 @@ Every modal extends `ModalContent<TDataIn = void, TDataOut = never>`. The compon
 - **`never`** — cannot return output data; `respondWithData` is uncallable.
 - **A concrete `TDataOut`** — returning data is **optional**: `close()` / `yes()` accept `data?`, so the same modal can close with or without a payload. `respondWithData` is the explicit always-with-data path.
 
-Inside the modal, input is available as **`this.data`** (injected by the base class). Do not inject `MODAL_DATA` manually.
-
-`ModalDataIn<C>` and `ModalDataOut<C>` extract types from a component class for advanced/generic callers.
+Inside the modal, input is available as **`this.data`** (injected by the base class). Do not inject `MODAL_DATA` manually. `ModalDataIn<C>` and `ModalDataOut<C>` extract types from a component class for advanced/generic callers.
 
 ### Passing data in and out
 
@@ -407,6 +379,8 @@ All options live on `ModalConfig` and can be set app-wide (`provideModalieur`) o
 | `ariaLabel`       | CDK `ariaLabel`                                                             | —                                           |
 | `ariaLabelledBy`  | CDK `ariaLabelledBy`                                                        | —                                           |
 | `ariaDescribedBy` | CDK `ariaDescribedBy`                                                       | —                                           |
+
+Try every combination live in the [playground](https://kazepis.github.io/ngx-modalieur/#playground).
 
 Non-dismissible modals with no backdrop (common in kiosk / operator UIs):
 
@@ -534,19 +508,19 @@ Your component owns the entire layout (positioning, z-index, animations). CDK st
 
 ### Public exports
 
-Everything in [`public-api.ts`](./projects/ngx-modalieur/src/public-api.ts) is part of the stable API: `ModalieurService`, `ModalContent`, `ModalRef`, `ModalConfig`, `ModalOutcome`, `ModalResult`, `ModalSize`, `ModalDataIn`, `ModalDataOut`, `MODAL_DATA`, `MODALIEUR_CONFIG`, `MODALIEUR_DEFAULTS`, `provideModalieur`, `MessageBoxDialog`, `MessageBoxButtons`, `MessageBoxOptions`, `MESSAGE_BOX_TITLE_ID`, `MESSAGE_BOX_BODY_ID`, `BootstrapDialogContainer`.
+Everything in [`public-api.ts`](https://github.com/kazepis/ngx-modalieur/blob/HEAD/projects/ngx-modalieur/src/public-api.ts) is part of the stable API: `ModalieurService`, `ModalContent`, `ModalRef`, `ModalConfig`, `ModalOutcome`, `ModalResult`, `ModalSize`, `ModalDataIn`, `ModalDataOut`, `MODAL_DATA`, `MODALIEUR_CONFIG`, `MODALIEUR_DEFAULTS`, `provideModalieur`, `MessageBoxDialog`, `MessageBoxButtons`, `MessageBoxOptions`, `MESSAGE_BOX_TITLE_ID`, `MESSAGE_BOX_BODY_ID`, `BootstrapDialogContainer`.
 
 ### `ModalieurService`
 
-| Method                                               | Returns                       | Description                                                                                           |
-| ---------------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `show(component, config?)`                           | `Observable<ModalOutcome<T>>` | Opens a modal; emits when it closes. `config` required (with `data`) when component has input.        |
-| `showUntil(component, until$, config?)`              | `Observable<ModalOutcome<T>>` | Auto-closes on first `until$` emission → `AutoClose`. See [Auto-close](#auto-close-with-observables). |
-| `showUntilCondition(component, condition$, config?)` | `Observable<ModalOutcome<T>>` | Auto-closes on first truthy emission → `AutoClose`.                                                   |
-| `showAndReturnRef(component, config?)`               | `ModalRef<T>`                 | Opens a modal; returns a ref for programmatic control.                                                |
-| `messageBox(options, config?)`                       | `Observable<ModalResult>`     | Config-driven `MessageBoxDialog`.                                                                     |
-| `confirm(title, message?, config?)`                  | `Observable<ModalResult>`     | Yes / No message box.                                                                                 |
-| `alert(title, message?, config?)`                    | `Observable<ModalResult>`     | Single OK message box.                                                                                |
+| Method                                               | Returns                       | Description                                                                                    |
+| ---------------------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------- |
+| `show(component, config?)`                           | `Observable<ModalOutcome<T>>` | Opens a modal; emits when it closes. `config` required (with `data`) when component has input.  |
+| `showUntil(component, until$, config?)`              | `Observable<ModalOutcome<T>>` | Auto-closes on first `until$` emission → `AutoClose`.                                           |
+| `showUntilCondition(component, condition$, config?)` | `Observable<ModalOutcome<T>>` | Auto-closes on first truthy emission → `AutoClose`.                                             |
+| `showAndReturnRef(component, config?)`               | `ModalRef<T>`                 | Opens a modal; returns a ref for programmatic control.                                          |
+| `messageBox(options, config?)`                       | `Observable<ModalResult>`     | Config-driven `MessageBoxDialog`.                                                              |
+| `confirm(title, message?, config?)`                  | `Observable<ModalResult>`     | Yes / No message box.                                                                          |
+| `alert(title, message?, config?)`                    | `Observable<ModalResult>`     | Single OK message box.                                                                         |
 
 ### `ModalRef`
 
@@ -569,7 +543,7 @@ Everything in [`public-api.ts`](./projects/ngx-modalieur/src/public-api.ts) is p
 
 ## Testing
 
-Provide a fake CDK `Dialog` and assert on `closed` emissions. See [`modalieur.service.spec.ts`](./src/lib/modalieur.service.spec.ts) for the full pattern:
+Provide a fake CDK `Dialog` and assert on `closed` emissions. See [`modalieur.service.spec.ts`](https://github.com/kazepis/ngx-modalieur/blob/HEAD/projects/ngx-modalieur/src/lib/modalieur.service.spec.ts) for the full pattern:
 
 ```ts
 import { Dialog } from '@angular/cdk/dialog';

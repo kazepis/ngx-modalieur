@@ -30,11 +30,31 @@ describe('App', () => {
     expect(compiled.querySelector('.demo-hero .btn-primary')?.textContent).toContain('Try confirm()');
   });
 
-  it('should render section navigation links', () => {
+  it('should render section navigation links, including the playground', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.demo-nav a[href="#playground"]')).toBeTruthy();
     expect(compiled.querySelector('.demo-nav a[href="#getting-started"]')).toBeTruthy();
     expect(compiled.querySelector('.demo-nav a[href="#message-boxes"]')).toBeTruthy();
+  });
+
+  it('should default the playground outcome', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('#playground [role="status"]')?.textContent).toContain('—');
+  });
+
+  it('should update the generated playground snippet when config changes', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const component = fixture.componentInstance as unknown as {
+      playgroundCode: () => string;
+      pgMode: { set: (value: 'shell' | 'unstyled') => void };
+    };
+    expect(component.playgroundCode()).toContain('ConfirmModalComponent');
+    component.pgMode.set('unstyled');
+    expect(component.playgroundCode()).toContain('PlainModalComponent');
   });
 });

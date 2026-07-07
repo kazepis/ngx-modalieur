@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { afterNextRender, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { HighlightAuto } from 'ngx-highlightjs';
 import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
 import {
@@ -8,7 +9,8 @@ import {
   MessageBoxDialog,
   ModalieurService,
   ModalOutcome,
-  ModalResult
+  ModalResult,
+  ModalSize
 } from 'ngx-modalieur';
 import { concat, filter, map, timer } from 'rxjs';
 
@@ -43,14 +45,48 @@ interface DemoSection {
 
 @Component({
   selector: 'app-root',
-  standalone: true,
   imports: [HighlightAuto, HighlightLineNumbers],
   templateUrl: './app.html'
 })
 export class App {
   private readonly modalieur = inject(ModalieurService);
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly outcomes = signal<Partial<Record<ExampleId, string>>>({});
+
+  /** Id of the section currently in view, used to highlight the nav. */
+  protected readonly activeSection = signal<string>('top');
+
+  /** Id of the code block whose "Copy" button was just pressed. */
+  protected readonly copied = signal<string | null>(null);
+
+  /** Available Bootstrap sizes for the playground select. */
+  protected readonly sizes: readonly ModalSize[] = ['sm', 'md', 'lg', 'xl', 'fullscreen'];
+
+  // Playground config, edited live from the controls.
+  // `mode` picks the presentation: the Bootstrap shell (size/centered/scrollable
+  // apply) or unstyled (the component owns its layout; those three are ignored).
+  protected readonly pgMode = signal<'shell' | 'unstyled'>('shell');
+  protected readonly pgSize = signal<ModalSize>('md');
+  protected readonly pgCentered = signal(true);
+  protected readonly pgScrollable = signal(false);
+  protected readonly pgDismissible = signal(true);
+  protected readonly pgBackdrop = signal(true);
+
+  /** Code snippet that mirrors the current playground config. */
+  protected readonly playgroundCode = computed(() => this.buildPlaygroundCode());
+  protected readonly playgroundOutcome = signal('—');
+
+  /** Long body used when the playground has `scrollable` on, so the scroll is visible. */
+  private readonly playgroundLongMessage = Array.from(
+    { length: 40 },
+    (_, i) => `Paragraph ${i + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.`
+  ).join('\n\n');
+
+  constructor() {
+    afterNextRender(() => this.observeSections());
+  }
 
   protected readonly sections: DemoSection[] = [
     {
@@ -185,7 +221,7 @@ this.modalieur
           kind: 'try',
           label: 'confirm() then alert()',
           description: 'Shorthand wrappers; aria wired automatically.',
-          btnClass: 'btn-outline-dark',
+          btnClass: 'btn-outline-secondary',
           code: `this.modalieur
   .confirm('Delete item?', 'This cannot be undone.')
   .subscribe((result: ModalResult) => {
@@ -202,7 +238,7 @@ this.modalieur
           kind: 'try',
           label: 'messageBox() — Retry / Cancel',
           description: 'Custom button set; emits ModalResult.',
-          btnClass: 'btn-outline-dark',
+          btnClass: 'btn-outline-secondary',
           code: `this.modalieur
   .messageBox({
     title: 'Retry?',
@@ -219,7 +255,7 @@ this.modalieur
           kind: 'try',
           label: 'show(MessageBoxDialog) + aria ids',
           description: 'Full ModalOutcome; pass MESSAGE_BOX_*_ID for accessibility.',
-          btnClass: 'btn-outline-dark',
+          btnClass: 'btn-outline-secondary',
           code: `import {
   MESSAGE_BOX_BODY_ID,
   MESSAGE_BOX_TITLE_ID,
@@ -247,7 +283,7 @@ this.modalieur
           kind: 'try',
           label: 'Content projection',
           description: 'Custom markup via mdlr-message-box slots.',
-          btnClass: 'btn-outline-dark',
+          btnClass: 'btn-outline-secondary',
           code: `@Component({
   imports: [MessageBoxDialog],
   template: \`
@@ -612,6 +648,136 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
 
   protected outcomeFor(id: ExampleId): string {
     return this.outcomes()[id] ?? '—';
+  }
+
+  /** Shorter labels for the section nav so it stays on one/two lines (no scrollbar). */
+  private readonly navLabels: Record<string, string> = {
+    playground: 'Playground',
+    'getting-started': 'Start',
+    'why-reactive': 'Why reactive',
+    'result-model': 'Results',
+    'message-boxes': 'Message boxes',
+    'custom-modals': 'Custom modals',
+    'modal-shapes': 'Data shapes',
+    'data-in-out': 'Data in/out',
+    configuration: 'Config',
+    'reactive-workflows': 'Workflows',
+    'auto-close': 'Auto-close',
+    'programmatic-control': 'Programmatic'
+  };
+
+  /** Nav entries: the playground plus every example section, in order. */
+  protected navLinks(): { id: string; title: string }[] {
+    const sectionTitles = new Map(this.sections.map(section => [section.id, section.title] as const));
+    const ids = ['playground', ...this.sections.map(section => section.id)];
+    return ids.map(id => ({ id, title: this.navLabels[id] ?? sectionTitles.get(id) ?? id }));
+  }
+
+  protected async copy(text: string, id: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(text);
+      this.copied.set(id);
+      setTimeout(() => {
+        if (this.copied() === id) {
+          this.copied.set(null);
+        }
+      }, 1500);
+    } catch {
+      // Clipboard access can be denied; fail quietly rather than break the demo.
+    }
+  }
+
+  protected onSizeChange(event: Event): void {
+    this.pgSize.set((event.target as HTMLSelectElement).value as ModalSize);
+  }
+
+  protected checked(event: Event): boolean {
+    return (event.target as HTMLInputElement).checked;
+  }
+
+  protected openPlayground(): void {
+    const report = (outcome: ModalOutcome | ModalResult): void => {
+      const result = typeof outcome === 'number' ? outcome : outcome.result;
+      this.playgroundOutcome.set(ModalResult[result]);
+    };
+
+    if (this.pgMode() === 'unstyled') {
+      this.modalieur
+        .show(PlainModalComponent, {
+          unstyled: true,
+          dismissible: this.pgDismissible(),
+          backdrop: this.pgBackdrop()
+        })
+        .subscribe(report);
+      return;
+    }
+
+    const message = this.pgScrollable()
+      ? this.playgroundLongMessage
+      : 'This modal is configured live from the controls on the left.';
+    this.modalieur
+      .show(ConfirmModalComponent, {
+        size: this.pgSize(),
+        centered: this.pgCentered(),
+        scrollable: this.pgScrollable(),
+        dismissible: this.pgDismissible(),
+        backdrop: this.pgBackdrop(),
+        data: { title: 'Playground modal', message }
+      })
+      .subscribe(report);
+  }
+
+  private buildPlaygroundCode(): string {
+    if (this.pgMode() === 'unstyled') {
+      const entries = [`unstyled: true`, `dismissible: ${this.pgDismissible()}`, `backdrop: ${this.pgBackdrop()}`];
+      return `this.modalieur\n  .show(PlainModalComponent, {\n    ${entries.join(',\n    ')}\n  })\n  .subscribe((outcome) => {\n    // outcome.result: ModalResult\n  });`;
+    }
+
+    // Scrollable only shows a scrollbar when the body overflows, so hint at long content.
+    const message = this.pgScrollable() ? 'longText' : `'Configured live.'`;
+    const entries = [
+      `size: '${this.pgSize()}'`,
+      `centered: ${this.pgCentered()}`,
+      `scrollable: ${this.pgScrollable()}`,
+      `dismissible: ${this.pgDismissible()}`,
+      `backdrop: ${this.pgBackdrop()}`,
+      `data: { title: 'Playground modal', message: ${message} }`
+    ];
+    return `this.modalieur\n  .show(ConfirmModalComponent, {\n    ${entries.join(',\n    ')}\n  })\n  .subscribe((outcome) => {\n    // outcome.result: ModalResult\n  });`;
+  }
+
+  private observeSections(): void {
+    const win = this.document.defaultView;
+    if (!win) {
+      return;
+    }
+    const ids = ['playground', ...this.sections.map(section => section.id)];
+    const elements = ids
+      .map(id => this.document.getElementById(id))
+      .filter((element): element is HTMLElement => element !== null);
+
+    // Active section = the last one whose top has scrolled past just below the
+    // sticky bar. Position-based so short sections don't hand off early.
+    const update = (): void => {
+      const line = 120;
+      let current = '';
+      for (const element of elements) {
+        if (element.getBoundingClientRect().top - line <= 0) {
+          current = element.id;
+        } else {
+          break;
+        }
+      }
+      this.activeSection.set(current);
+    };
+
+    update();
+    win.addEventListener('scroll', update, { passive: true });
+    win.addEventListener('resize', update, { passive: true });
+    this.destroyRef.onDestroy(() => {
+      win.removeEventListener('scroll', update);
+      win.removeEventListener('resize', update);
+    });
   }
 
   protected openQuickStart(): void {

@@ -1,32 +1,171 @@
-<main class="container py-4 py-lg-5">
-  <header class="demo-hero mb-4">
-    <p class="text-uppercase text-body-secondary small fw-semibold mb-2">ngx-modalieur</p>
-    <h1 class="mb-2">Reactive Bootstrap modals for Angular</h1>
-    <p class="lead text-body-secondary mb-3">
-      A thin layer on Angular CDK Dialog. Open a modal, <code>subscribe</code> to the result.
+<a class="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary btn-sm" href="#main-content">
+  Skip to content
+</a>
+
+<div class="demo-topbar sticky-top bg-body border-bottom">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between gap-3 py-2">
+      <a class="navbar-brand fw-semibold mb-0 text-body" href="#top">ngx-modalieur</a>
+      <div class="d-flex align-items-center gap-2">
+        <a class="btn btn-sm btn-outline-secondary" href="https://www.npmjs.com/package/ngx-modalieur" target="_blank" rel="noopener noreferrer">
+          npm
+        </a>
+        <a class="btn btn-sm btn-outline-secondary" href="https://github.com/kazepis/ngx-modalieur" target="_blank" rel="noopener noreferrer">
+          GitHub
+        </a>
+      </div>
+    </div>
+    <nav class="demo-nav" aria-label="Demo sections">
+      <ul class="nav flex-wrap gap-1 pb-2 small">
+        @for (link of navLinks(); track link.id) {
+          <li class="nav-item">
+            <a class="nav-link py-1" [class.active]="activeSection() === link.id" [href]="'#' + link.id">{{ link.title }}</a>
+          </li>
+        }
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<main id="main-content" class="container py-4 py-lg-5">
+  <header id="top" class="demo-hero mb-5">
+    <span class="badge rounded-pill text-bg-secondary mb-3">Angular 22 · Bootstrap 5.3 · CDK Dialog</span>
+    <h1 class="display-5 fw-bold mb-3">Reactive Bootstrap modals for Angular</h1>
+    <p class="lead text-body-secondary mb-4">
+      Open a modal, <code>subscribe</code> to the result. A thin, typed layer over Angular CDK Dialog with a
+      Bootstrap shell, a standardized outcome model, and built-in confirm / alert dialogs.
     </p>
-    <div class="d-flex flex-wrap gap-2 align-items-center">
-      <button type="button" class="btn btn-primary" (click)="openQuickStart()">Show DEMO confirm() modal</button>
-      <a
-        class="btn btn-outline-secondary"
-        href="https://www.npmjs.com/package/ngx-modalieur"
-        target="_blank"
-        rel="noopener noreferrer"
+
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
+      <button type="button" class="btn btn-primary btn-lg" (click)="openQuickStart()">Try confirm()</button>
+      <a class="btn btn-outline-secondary btn-lg" href="#playground">Open the playground</a>
+    </div>
+
+    <div class="demo-code-wrap position-relative mb-4" style="max-width: 640px">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary demo-copy"
+        (click)="copy('npm install ngx-modalieur @angular/cdk bootstrap', 'install')"
       >
-        npm
-      </a>
+        {{ copied() === 'install' ? 'Copied' : 'Copy' }}
+      </button>
+      <pre class="demo-code bg-body-tertiary border rounded mb-0 small p-3"><code>npm install ngx-modalieur &#64;angular/cdk bootstrap</code></pre>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-sm-6 col-lg-4">
+        <div class="d-flex flex-column h-100">
+          <h2 class="h6 mb-1">Subscribe, don't wire</h2>
+          <p class="text-body-secondary small mb-0">
+            <code>show()</code> returns an <code>Observable</code>. React in one <code>subscribe</code> — no modal
+            ids, no global result bus.
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <div class="d-flex flex-column h-100">
+          <h2 class="h6 mb-1">Bootstrap without glue</h2>
+          <p class="text-body-secondary small mb-0">
+            The library wraps your component in <code>.modal &gt; .modal-dialog &gt; .modal-content</code>. You only
+            render header, body, and footer.
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <div class="d-flex flex-column h-100">
+          <h2 class="h6 mb-1">Built-in confirm / alert</h2>
+          <p class="text-body-secondary small mb-0">
+            One-liners for the dialogs every app reimplements, plus observable-driven auto-close.
+          </p>
+        </div>
+      </div>
     </div>
   </header>
 
-  <nav class="demo-nav navbar navbar-expand rounded border bg-body mb-5 px-3 py-2" aria-label="Demo sections">
-    <ul class="navbar-nav flex-row flex-wrap gap-1 gap-lg-2 small">
-      @for (section of sections; track section.id) {
-        <li class="nav-item">
-          <a class="nav-link py-1" [href]="'#' + section.id">{{ section.title }}</a>
-        </li>
-      }
-    </ul>
-  </nav>
+  <section id="playground" class="demo-section mb-5">
+    <h2 class="h4 mb-1">Playground</h2>
+    <p class="text-body-secondary mb-3">Tweak the configuration and open a real modal. The code updates as you go.</p>
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <div class="card h-100">
+          <div class="card-body">
+            <fieldset class="mb-3">
+              <legend class="form-label mb-1 fs-6">Mode</legend>
+              <div class="btn-group w-100" role="group" aria-label="Modal presentation mode">
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="pg-mode"
+                  id="pg-mode-shell"
+                  autocomplete="off"
+                  [checked]="pgMode() === 'shell'"
+                  (change)="pgMode.set('shell')"
+                />
+                <label class="btn btn-outline-primary" for="pg-mode-shell">Bootstrap shell</label>
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="pg-mode"
+                  id="pg-mode-unstyled"
+                  autocomplete="off"
+                  [checked]="pgMode() === 'unstyled'"
+                  (change)="pgMode.set('unstyled')"
+                />
+                <label class="btn btn-outline-primary" for="pg-mode-unstyled">Unstyled</label>
+              </div>
+            </fieldset>
+
+            @if (pgMode() === 'shell') {
+              <div class="mb-3">
+                <label class="form-label" for="pg-size">size</label>
+                <select id="pg-size" class="form-select" [value]="pgSize()" (change)="onSizeChange($event)">
+                  @for (size of sizes; track size) {
+                    <option [value]="size">{{ size }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="pg-centered" [checked]="pgCentered()" (change)="pgCentered.set(checked($event))" />
+                <label class="form-check-label" for="pg-centered">centered</label>
+              </div>
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="pg-scrollable" [checked]="pgScrollable()" (change)="pgScrollable.set(checked($event))" />
+                <label class="form-check-label" for="pg-scrollable">scrollable</label>
+              </div>
+            } @else {
+              <p class="text-body-secondary small mb-3">
+                <code>size</code>, <code>centered</code>, and <code>scrollable</code> don't apply here — with
+                <code>unstyled</code> the component owns its own layout.
+              </p>
+            }
+
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" role="switch" id="pg-dismissible" [checked]="pgDismissible()" (change)="pgDismissible.set(checked($event))" />
+              <label class="form-check-label" for="pg-dismissible">dismissible</label>
+            </div>
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" role="switch" id="pg-backdrop" [checked]="pgBackdrop()" (change)="pgBackdrop.set(checked($event))" />
+              <label class="form-check-label" for="pg-backdrop">backdrop</label>
+            </div>
+
+            <button type="button" class="btn btn-primary w-100" (click)="openPlayground()">Open modal</button>
+            <div class="alert alert-secondary py-2 mt-3 mb-0 small" role="status" aria-live="polite">
+              <strong>Outcome:</strong> {{ playgroundOutcome() }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <div class="demo-code-wrap position-relative h-100">
+          <button type="button" class="btn btn-sm btn-outline-secondary demo-copy" (click)="copy(playgroundCode(), 'playground')">
+            {{ copied() === 'playground' ? 'Copied' : 'Copy' }}
+          </button>
+          <pre class="demo-code bg-body-tertiary border rounded mb-0 small h-100"><code [highlightAuto]="playgroundCode()" lineNumbers></code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
 
   @for (section of sections; track section.id) {
     <section class="demo-section mb-5" [id]="section.id">
@@ -53,15 +192,20 @@
                   <button type="button" class="btn align-self-start mb-3 {{ example.btnClass }}" (click)="example.run()">
                     Run example
                   </button>
-                  <div class="alert alert-secondary py-2 mb-3 small" role="status">
+                  <div class="alert alert-secondary py-2 mb-3 small" role="status" aria-live="polite">
                     <strong>Outcome:</strong> {{ outcomeFor(example.id) }}
                   </div>
                 }
 
-                <pre class="demo-code bg-body-tertiary border rounded mb-0 small flex-grow-1"><code
-                    [highlightAuto]="example.code"
-                    lineNumbers
-                  ></code></pre>
+                <div class="demo-code-wrap position-relative flex-grow-1">
+                  <button type="button" class="btn btn-sm btn-outline-secondary demo-copy" (click)="copy(example.code, example.id)">
+                    {{ copied() === example.id ? 'Copied' : 'Copy' }}
+                  </button>
+                  <pre class="demo-code bg-body-tertiary border rounded mb-0 small h-100"><code
+                      [highlightAuto]="example.code"
+                      lineNumbers
+                    ></code></pre>
+                </div>
               </div>
             </div>
           </div>
@@ -73,7 +217,7 @@
 
 <footer class="demo-footer border-top mt-2">
   <div class="container py-4 text-center text-body-secondary small">
-    <p class="mb-2">Made with <span class="text-danger" aria-hidden="true">♥</span> for the Angular community</p>
+    <p class="mb-2">Made with <span class="text-danger" aria-hidden="true">&hearts;</span> for the Angular community</p>
     <p class="mb-0">
       <a href="https://www.npmjs.com/package/ngx-modalieur" target="_blank" rel="noopener noreferrer">npm</a>
       <span class="mx-2" aria-hidden="true">·</span>

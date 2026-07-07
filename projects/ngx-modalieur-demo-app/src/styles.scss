@@ -1,15 +1,74 @@
-/* Highlight.js code blocks in demo cards */
-pre.demo-code {
+/* Sticky top bar (brand, links, section nav) */
+.demo-topbar {
+  z-index: 1030;
+}
+
+.demo-nav .nav {
+  list-style: none;
   margin: 0;
   padding: 0;
-  overflow: auto;
+}
 
+.demo-nav .nav-link {
+  white-space: nowrap;
+  color: var(--bs-secondary-color);
+  border-radius: var(--bs-border-radius);
+  padding: 0.15rem 0.6rem;
+}
+
+.demo-nav .nav-link:hover {
+  color: var(--bs-primary);
+  background: var(--bs-tertiary-bg);
+}
+
+.demo-nav .nav-link.active {
+  color: var(--bs-primary);
+  background: var(--bs-tertiary-bg);
+  font-weight: 600;
+}
+
+/* Sections scroll clear of the sticky bar when jumped to via the nav.
+   Kept in sync with the scroll-spy line (~120px) in app.ts. */
+.demo-section {
+  scroll-margin-top: 7.5rem;
+}
+
+.demo-hero code {
+  background: var(--bs-tertiary-bg);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+}
+
+/* Code blocks with a copy button overlay */
+.demo-code-wrap .demo-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+}
+
+/* highlight.js bundles the github theme, which paints an opaque white
+   background on `.hljs`. It re-applies on every re-highlight (e.g. the live
+   playground snippet), overriding the card background. Kill it everywhere and
+   let the `pre` panel own the background. */
+.hljs,
+pre.demo-code code,
+pre.demo-code code.hljs,
+pre.demo-code .hljs {
+  background: transparent !important;
+}
+
+pre.demo-code {
+  margin: 0;
+  overflow: auto;
+  background-color: var(--bs-tertiary-bg) !important;
+
+  code,
   code.hljs {
     display: block;
     padding: 0.75rem 0;
     font-size: 0.8125rem;
     line-height: 1.45;
-    background: transparent;
   }
 
   /* Line-number gutter */
@@ -28,24 +87,7 @@ pre.demo-code {
   }
 }
 
-.demo-nav {
-  position: sticky;
-  top: 0.75rem;
-  z-index: 1020;
-}
-
-.demo-section {
-  scroll-margin-top: 5rem;
-}
-
-.demo-nav .nav-link {
-  color: var(--bs-secondary-color);
-}
-
-.demo-nav .nav-link:hover {
-  color: var(--bs-primary);
-}
-
+/* Footer links */
 .demo-footer a {
   color: var(--bs-secondary-color);
   text-decoration: none;
