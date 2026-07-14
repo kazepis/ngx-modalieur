@@ -12,7 +12,7 @@ import {
   ModalResult,
   ModalSize
 } from 'ngx-modalieur';
-import { concat, filter, map, timer } from 'rxjs';
+import { concat, filter, from, map, switchMap, timer } from 'rxjs';
 
 import { ExampleId } from './examples';
 import { AckModalComponent } from './modals/ack-modal.component';
@@ -350,6 +350,47 @@ this.modalieur
       ]
     },
     {
+      id: 'lazy-loading',
+      title: 'Lazy loading',
+      description: 'Load modal components on demand; pass the resolved class to show().',
+      examples: [
+        {
+          id: ExampleId.LazyLoadAsync,
+          kind: 'try',
+          label: 'async/await — dynamic import()',
+          description: 'Fetch the modal chunk when the user opens it, then call show().',
+          btnClass: 'btn-outline-primary',
+          code: `async openLazyModal(): Promise<void> {
+  const { LazyLoadModalComponent } = await import('./modals/lazy-load-modal.component');
+
+  this.modalieur
+    .show(LazyLoadModalComponent)
+    .subscribe((outcome) => {
+      // outcome.result: ModalResult
+    });
+}`,
+          run: () => this.openLazyLoadAsync()
+        },
+        {
+          id: ExampleId.LazyLoadRxjs,
+          kind: 'try',
+          label: 'RxJS — from(import()).pipe(switchMap)',
+          description: 'Same pattern composed into an RxJS pipeline.',
+          btnClass: 'btn-outline-primary',
+          code: `import { from, switchMap } from 'rxjs';
+
+from(import('./modals/lazy-load-modal.component')).pipe(
+  switchMap(({ LazyLoadModalComponent }) =>
+    this.modalieur.show(LazyLoadModalComponent)
+  )
+).subscribe((outcome) => {
+  // outcome.result: ModalResult
+});`,
+          run: () => this.openLazyLoadRxjs()
+        }
+      ]
+    },
+    {
       id: 'modal-shapes',
       title: 'Modal data shapes',
       description:
@@ -658,6 +699,7 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
     'result-model': 'Results',
     'message-boxes': 'Message boxes',
     'custom-modals': 'Custom modals',
+    'lazy-loading': 'Lazy load',
     'modal-shapes': 'Data shapes',
     'data-in-out': 'Data in/out',
     configuration: 'Config',
@@ -946,6 +988,20 @@ ref.close(ModalResult.Ok, { savedId: 42 });`,
       .confirm('Delete item?', 'This cannot be undone.')
       .pipe(filter(result => result === ModalResult.Yes))
       .subscribe(() => this.report(ExampleId.ReactiveChain, ModalResult.Yes));
+  }
+
+  protected async openLazyLoadAsync(): Promise<void> {
+    const { LazyLoadModalComponent } = await import('./modals/lazy-load-modal.component');
+
+    this.modalieur
+      .show(LazyLoadModalComponent)
+      .subscribe((outcome: ModalOutcome) => this.report(ExampleId.LazyLoadAsync, outcome));
+  }
+
+  protected openLazyLoadRxjs(): void {
+    from(import('./modals/lazy-load-modal.component'))
+      .pipe(switchMap(({ LazyLoadModalComponent }) => this.modalieur.show(LazyLoadModalComponent)))
+      .subscribe((outcome: ModalOutcome) => this.report(ExampleId.LazyLoadRxjs, outcome));
   }
 
   protected openProgress(): void {

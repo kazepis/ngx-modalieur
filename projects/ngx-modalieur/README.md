@@ -38,6 +38,7 @@ npm install ngx-modalieur @angular/cdk bootstrap
   - [Auto-close with observables](#auto-close-with-observables)
   - [Programmatic control](#programmatic-control)
   - [Custom layouts](#custom-layouts)
+  - [Lazy loading](#lazy-loading)
 - [API reference](#api-reference)
 - [Testing](#testing)
 - [License](#license)
@@ -503,6 +504,42 @@ this.modalieur.show(MyOverlayComponent, { unstyled: true, data });
 ```
 
 Your component owns the entire layout (positioning, z-index, animations). CDK still provides overlay, focus trap, and backdrop.
+
+### Lazy loading
+
+`show()` accepts a component **class** (`Type<C>`), not a route-style `loadComponent` loader. To lazy-load a modal, dynamically import it first, then pass the resolved class to `show()`.
+
+**Async/await:**
+
+```ts
+async openLazyModal(): Promise<void> {
+  const { LazyLoadModalComponent } = await import('./modals/lazy-load-modal.component');
+
+  this.modalieur
+    .show(LazyLoadModalComponent)
+    .subscribe((outcome) => {
+      // outcome.result: ModalResult
+    });
+}
+```
+
+**RxJS:**
+
+```ts
+import { from, switchMap } from 'rxjs';
+
+from(import('./modals/lazy-load-modal.component')).pipe(
+  switchMap(({ LazyLoadModalComponent }) =>
+    this.modalieur.show(LazyLoadModalComponent)
+  )
+).subscribe((outcome) => {
+  // outcome.result: ModalResult
+});
+```
+
+**Avoid eager imports.** A top-level `import { LazyLoadModalComponent }` in code loaded at startup pulls the modal into the initial bundle. Use dynamic `import()` only where you open the modal.
+
+For simple yes/no dialogs, `confirm()` and `messageBox()` avoid a custom component entirely — no separate chunk needed.
 
 ## API reference
 

@@ -24,5 +24,7 @@ export enum ExampleId {
   ReactiveChain = 'reactive-chain',
   ShowUntil = 'show-until',
   ShowUntilCondition = 'show-until-condition',
-  ProgrammaticRef = 'programmatic-ref'
+  ProgrammaticRef = 'programmatic-ref',
+  LazyLoadAsync = 'lazy-load-async',
+  LazyLoadRxjs = 'lazy-load-rxjs'
 }
