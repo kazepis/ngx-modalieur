@@ -81,7 +81,8 @@ export class App {
   /** Long body used when the playground has `scrollable` on, so the scroll is visible. */
   private readonly playgroundLongMessage = Array.from(
     { length: 40 },
-    (_, i) => `Paragraph ${i + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.`
+    (_, i) =>
+      `Paragraph ${i + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.`
   ).join('\n\n');
 
   constructor() {
@@ -369,7 +370,11 @@ this.modalieur
       // outcome.result: ModalResult
     });
 }`,
-          run: () => this.openLazyLoadAsync()
+          run: () => {
+            void this.openLazyLoadAsync().catch(error => {
+              console.error('Failed to open modal', error);
+            });
+          }
         },
         {
           id: ExampleId.LazyLoadRxjs,
@@ -400,8 +405,7 @@ from(import('./modals/lazy-load-modal.component')).pipe(
           id: ExampleId.ShapeNone,
           kind: 'try',
           label: 'void, never — no input, no output',
-          description:
-            'show() emits ModalOutcome; for never output you only use outcome.result (ModalResult).',
+          description: 'show() emits ModalOutcome; for never output you only use outcome.result (ModalResult).',
           btnClass: 'btn-outline-primary',
           code: `// Author
 class AckModalComponent extends ModalContent<void, never> {

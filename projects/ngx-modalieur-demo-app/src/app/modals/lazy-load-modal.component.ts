@@ -10,9 +10,7 @@ import { ModalContent } from 'ngx-modalieur';
       <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
     </div>
     <div class="modal-body" aria-labelledby="lazy-load-modal-title">
-      <p class="mb-0">
-        This modal was loaded on demand via <code>import()</code> — it is not in the initial bundle.
-      </p>
+      <p class="mb-0">This modal was loaded on demand via <code>import()</code> — it is not in the initial bundle.</p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-primary" (click)="ok()">OK</button>

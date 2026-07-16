@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHighlightOptions } from 'ngx-highlightjs';
+
 import { App } from './app';
 
 describe('App', () => {
@@ -43,7 +44,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('#playground [role="status"]')?.textContent).toContain('—');
+    expect(compiled.querySelector('#playground output')?.textContent).toContain('—');
   });
 
   it('should update the generated playground snippet when config changes', () => {

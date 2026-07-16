@@ -528,13 +528,11 @@ async openLazyModal(): Promise<void> {
 ```ts
 import { from, switchMap } from 'rxjs';
 
-from(import('./modals/lazy-load-modal.component')).pipe(
-  switchMap(({ LazyLoadModalComponent }) =>
-    this.modalieur.show(LazyLoadModalComponent)
-  )
-).subscribe((outcome) => {
-  // outcome.result: ModalResult
-});
+from(import('./modals/lazy-load-modal.component'))
+  .pipe(switchMap(({ LazyLoadModalComponent }) => this.modalieur.show(LazyLoadModalComponent)))
+  .subscribe(outcome => {
+    // outcome.result: ModalResult
+  });
 ```
 
 **Avoid eager imports.** A top-level `import { LazyLoadModalComponent }` in code loaded at startup pulls the modal into the initial bundle. Use dynamic `import()` only where you open the modal.
@@ -551,10 +549,10 @@ Everything in [`public-api.ts`](https://github.com/kazepis/ngx-modalieur/blob/HE
 
 | Method                                               | Returns                       | Description                                                                                    |
 | ---------------------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------- |
-| `show(component, config?)`                           | `Observable<ModalOutcome<T>>` | Opens a modal; emits when it closes. `config` required (with `data`) when component has input.  |
-| `showUntil(component, until$, config?)`              | `Observable<ModalOutcome<T>>` | Auto-closes on first `until$` emission → `AutoClose`.                                           |
-| `showUntilCondition(component, condition$, config?)` | `Observable<ModalOutcome<T>>` | Auto-closes on first truthy emission → `AutoClose`.                                             |
-| `showAndReturnRef(component, config?)`               | `ModalRef<T>`                 | Opens a modal; returns a ref for programmatic control.                                          |
+| `show(component, config?)`                           | `Observable<ModalOutcome<T>>` | Opens a modal; emits when it closes. `config` required (with `data`) when component has input. |
+| `showUntil(component, until$, config?)`              | `Observable<ModalOutcome<T>>` | Auto-closes on first `until$` emission → `AutoClose`.                                          |
+| `showUntilCondition(component, condition$, config?)` | `Observable<ModalOutcome<T>>` | Auto-closes on first truthy emission → `AutoClose`.                                            |
+| `showAndReturnRef(component, config?)`               | `ModalRef<T>`                 | Opens a modal; returns a ref for programmatic control.                                         |
 | `messageBox(options, config?)`                       | `Observable<ModalResult>`     | Config-driven `MessageBoxDialog`.                                                              |
 | `confirm(title, message?, config?)`                  | `Observable<ModalResult>`     | Yes / No message box.                                                                          |
 | `alert(title, message?, config?)`                    | `Observable<ModalResult>`     | Single OK message box.                                                                         |

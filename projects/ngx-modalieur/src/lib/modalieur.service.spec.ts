@@ -3,11 +3,11 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
+import { MessageBoxButtons } from './components/message-box/message-box-buttons.enum';
+import { ModalContent } from './modal-content';
 import { ModalOutcome } from './modal-outcome';
 import { ModalResult } from './modal-result.enum';
-import { ModalContent } from './modal-content';
 import { ModalieurService } from './modalieur.service';
-import { MessageBoxButtons } from './components/message-box/message-box-buttons.enum';
 
 @Component({ standalone: true, template: '' })
 class DummyModal extends ModalContent<void, never> {}
@@ -57,7 +57,7 @@ describe('ModalieurService', () => {
     const received: ModalOutcome[] = [];
     service.show(DummyModal).subscribe(o => received.push(o));
 
-    dialog.ref.close(undefined);
+    dialog.ref.close();
 
     expect(received).toEqual([{ result: ModalResult.Cancel }]);
   });

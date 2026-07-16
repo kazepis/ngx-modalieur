@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { MODAL_DATA } from '../../modal-data.token';
 import { ModalRef } from '../../modal-ref';
 import { ModalResult } from '../../modal-result.enum';
-import { MODAL_DATA } from '../../modal-data.token';
 import { MESSAGE_BOX_BUTTON_SETS } from './message-box-buttons.config';
 import { MessageBoxButtons } from './message-box-buttons.enum';
 import { MessageBoxDialog } from './message-box.dialog';
@@ -44,9 +44,12 @@ describe('MessageBoxDialog', () => {
 
     for (const buttons of sets) {
       create(buttons);
-      const labels = (Array.from(fixture.nativeElement.querySelectorAll('.modal-footer button')) as HTMLElement[]).map(el =>
-        el.textContent?.trim()
+      const host = fixture.nativeElement as HTMLElement;
+
+      const labels = Array.from(host.querySelectorAll<HTMLButtonElement>('.modal-footer button'), button =>
+        button.textContent?.trim()
       );
+
       expect(labels.length).toBe(MESSAGE_BOX_BUTTON_SETS[buttons].length);
       fixture.destroy();
     }

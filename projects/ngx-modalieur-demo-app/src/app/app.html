@@ -7,10 +7,20 @@
     <div class="d-flex align-items-center justify-content-between gap-3 py-2">
       <a class="navbar-brand fw-semibold mb-0 text-body" href="#top">ngx-modalieur</a>
       <div class="d-flex align-items-center gap-2">
-        <a class="btn btn-sm btn-outline-secondary" href="https://www.npmjs.com/package/ngx-modalieur" target="_blank" rel="noopener noreferrer">
+        <a
+          class="btn btn-sm btn-outline-secondary"
+          href="https://www.npmjs.com/package/ngx-modalieur"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           npm
         </a>
-        <a class="btn btn-sm btn-outline-secondary" href="https://github.com/kazepis/ngx-modalieur" target="_blank" rel="noopener noreferrer">
+        <a
+          class="btn btn-sm btn-outline-secondary"
+          href="https://github.com/kazepis/ngx-modalieur"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           GitHub
         </a>
       </div>
@@ -32,8 +42,8 @@
     <span class="badge rounded-pill text-bg-secondary mb-3">Angular 22 · Bootstrap 5.3 · CDK Dialog</span>
     <h1 class="display-5 fw-bold mb-3">Reactive Bootstrap modals for Angular</h1>
     <p class="lead text-body-secondary mb-4">
-      Open a modal, <code>subscribe</code> to the result. A thin, typed layer over Angular CDK Dialog with a
-      Bootstrap shell, a standardized outcome model, and built-in confirm / alert dialogs.
+      Open a modal, <code>subscribe</code> to the result. A thin, typed layer over Angular CDK Dialog with a Bootstrap shell,
+      a standardized outcome model, and built-in confirm / alert dialogs.
     </p>
 
     <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
@@ -49,7 +59,9 @@
       >
         {{ copied() === 'install' ? 'Copied' : 'Copy' }}
       </button>
-      <pre class="demo-code bg-body-tertiary border rounded mb-0 small p-3"><code>npm install ngx-modalieur &#64;angular/cdk bootstrap</code></pre>
+      <pre
+        class="demo-code bg-body-tertiary border rounded mb-0 small p-3"
+      ><code>npm install ngx-modalieur &#64;angular/cdk bootstrap</code></pre>
     </div>
 
     <div class="row g-3">
@@ -57,8 +69,8 @@
         <div class="d-flex flex-column h-100">
           <h2 class="h6 mb-1">Subscribe, don't wire</h2>
           <p class="text-body-secondary small mb-0">
-            <code>show()</code> returns an <code>Observable</code>. React in one <code>subscribe</code> — no modal
-            ids, no global result bus.
+            <code>show()</code> returns an <code>Observable</code>. React in one <code>subscribe</code> — no modal ids, no
+            global result bus.
           </p>
         </div>
       </div>
@@ -66,8 +78,8 @@
         <div class="d-flex flex-column h-100">
           <h2 class="h6 mb-1">Bootstrap without glue</h2>
           <p class="text-body-secondary small mb-0">
-            The library wraps your component in <code>.modal &gt; .modal-dialog &gt; .modal-content</code>. You only
-            render header, body, and footer.
+            The library wraps your component in <code>.modal &gt; .modal-dialog &gt; .modal-content</code>. You only render
+            header, body, and footer.
           </p>
         </div>
       </div>
@@ -126,11 +138,27 @@
               </div>
 
               <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" role="switch" id="pg-centered" [checked]="pgCentered()" (change)="pgCentered.set(checked($event))" />
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="pg-centered"
+                  [checked]="pgCentered()"
+                  [aria-checked]="pgCentered()"
+                  (change)="pgCentered.set(checked($event))"
+                />
                 <label class="form-check-label" for="pg-centered">centered</label>
               </div>
               <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" role="switch" id="pg-scrollable" [checked]="pgScrollable()" (change)="pgScrollable.set(checked($event))" />
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="pg-scrollable"
+                  [checked]="pgScrollable()"
+                  [aria-checked]="pgScrollable()"
+                  (change)="pgScrollable.set(checked($event))"
+                />
                 <label class="form-check-label" for="pg-scrollable">scrollable</label>
               </div>
             } @else {
@@ -141,27 +169,49 @@
             }
 
             <div class="form-check form-switch mb-2">
-              <input class="form-check-input" type="checkbox" role="switch" id="pg-dismissible" [checked]="pgDismissible()" (change)="pgDismissible.set(checked($event))" />
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="pg-dismissible"
+                [checked]="pgDismissible()"
+                [aria-checked]="pgDismissible()"
+                (change)="pgDismissible.set(checked($event))"
+              />
               <label class="form-check-label" for="pg-dismissible">dismissible</label>
             </div>
             <div class="form-check form-switch mb-3">
-              <input class="form-check-input" type="checkbox" role="switch" id="pg-backdrop" [checked]="pgBackdrop()" (change)="pgBackdrop.set(checked($event))" />
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="pg-backdrop"
+                [checked]="pgBackdrop()"
+                [aria-checked]="pgBackdrop()"
+                (change)="pgBackdrop.set(checked($event))"
+              />
               <label class="form-check-label" for="pg-backdrop">backdrop</label>
             </div>
 
             <button type="button" class="btn btn-primary w-100" (click)="openPlayground()">Open modal</button>
-            <div class="alert alert-secondary py-2 mt-3 mb-0 small" role="status" aria-live="polite">
+            <output class="alert alert-secondary py-2 mt-3 mb-0 small d-block">
               <strong>Outcome:</strong> {{ playgroundOutcome() }}
-            </div>
+            </output>
           </div>
         </div>
       </div>
       <div class="col-lg-7">
         <div class="demo-code-wrap position-relative h-100">
-          <button type="button" class="btn btn-sm btn-outline-secondary demo-copy" (click)="copy(playgroundCode(), 'playground')">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary demo-copy"
+            (click)="copy(playgroundCode(), 'playground')"
+          >
             {{ copied() === 'playground' ? 'Copied' : 'Copy' }}
           </button>
-          <pre class="demo-code bg-body-tertiary border rounded mb-0 small h-100"><code [highlightAuto]="playgroundCode()" lineNumbers></code></pre>
+          <pre
+            class="demo-code bg-body-tertiary border rounded mb-0 small h-100"
+          ><code [highlightAuto]="playgroundCode()" lineNumbers></code></pre>
         </div>
       </div>
     </div>
@@ -192,13 +242,17 @@
                   <button type="button" class="btn align-self-start mb-3 {{ example.btnClass }}" (click)="example.run()">
                     Run example
                   </button>
-                  <div class="alert alert-secondary py-2 mb-3 small" role="status" aria-live="polite">
+                  <output class="alert alert-secondary py-2 mb-3 small d-block">
                     <strong>Outcome:</strong> {{ outcomeFor(example.id) }}
-                  </div>
+                  </output>
                 }
 
                 <div class="demo-code-wrap position-relative flex-grow-1">
-                  <button type="button" class="btn btn-sm btn-outline-secondary demo-copy" (click)="copy(example.code, example.id)">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary demo-copy"
+                    (click)="copy(example.code, example.id)"
+                  >
                     {{ copied() === example.id ? 'Copied' : 'Copy' }}
                   </button>
                   <pre class="demo-code bg-body-tertiary border rounded mb-0 small h-100"><code
