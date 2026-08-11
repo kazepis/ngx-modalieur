@@ -16,6 +16,15 @@ npm install ngx-modalieur @angular/cdk bootstrap
 
 **[Try the live demo](https://kazepis.github.io/ngx-modalieur/)** — interactive examples and a config playground in your browser.
 
+---
+
+> ### Related projects
+> Need lightweight notifications alongside your modals? Check out **[ngx-toaster-next](https://github.com/kazepis/ngx-toaster-next)** — accessible toast notifications for Angular 22 with familiar ngx-toastr-style visuals and a small API.
+> Both libraries target Angular 22 and are designed as focused UI building blocks: use `ngx-modalieur` for interactions that require a response, and `ngx-toaster-next` for non-blocking feedback.
+> Contributions, bug reports, and ideas are welcome in both projects.
+
+---
+
 ## Table of contents
 
 - [What is this?](#what-is-this)
